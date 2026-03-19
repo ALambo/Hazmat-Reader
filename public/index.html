@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAZMAT Reader</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;700&display=swap');
+
+  :root {
+    --bg: #0d0f0f;
+    --surface: #161a1a;
+    --border: #2a3030;
+    --accent: #f5a800;
+    --danger: #e03c3c;
+    --safe: #2ecc71;
+    --text: #e8ecec;
+    --muted: #6b7a7a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* ── PIN SCREEN ── */
+  #pinScreen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .pin-diamond {
+    width: 64px; height: 64px;
+    background: var(--accent);
+    transform: rotate(45deg);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 28px;
+    animation: pinGlow 2s ease-in-out infinite alternate;
+  }
+  @keyframes pinGlow {
+    from { box-shadow: 0 0 20px rgba(245,168,0,0.2); }
+    to   { box-shadow: 0 0 50px rgba(245,168,0,0.45); }
+  }
+  .pin-diamond span {
+    transform: rotate(-45deg);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; color: #000; letter-spacing: 1px;
+  }
+  .pin-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px; letter-spacing: 4px; color: var(--accent); margin-bottom: 4px;
+  }
+  .pin-subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; letter-spacing: 2px; color: var(--muted); margin-bottom: 40px;
+  }
+  .pin-dots { display: flex; gap: 14px; margin-bottom: 32px; }
+  .pin-dot {
+    width: 14px; height: 14px;
+    border: 2px solid var(--border); border-radius: 50%; transition: all 0.15s;
+  }
+  .pin-dot.filled { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px rgba(245,168,0,0.5); }
+  .pin-dot.error  { background: var(--danger); border-color: var(--danger); animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)}
+    40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)}
+  }
+  .pin-keypad { display: grid; grid-template-columns: repeat(3, 72px); gap: 12px; }
+  .pin-key {
+    height: 72px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 4px; color: var(--text);
+    font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1px;
+    cursor: pointer; transition: all 0.12s;
+    display: flex; align-items: center; justify-content: center;
+    user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+  .pin-key:active { background: rgba(245,168,0,0.12); border-color: var(--accent); color: var(--accent); transform: scale(0.95); }
+  .pin-key.del { font-size: 20px; color: var(--muted); }
+  .pin-key.empty { background: transparent; border-color: transparent; pointer-events: none; }
+  .pin-message {
+    margin-top: 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; letter-spacing: 1px; color: var(--danger); min-height: 18px; text-align: center;
+  }
+
+  /* ── APP ── */
+  header {
+    width: 100%; max-width: 680px;
+    padding: 32px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 16px;
+  }
+  .logo-diamond {
+    width: 44px; height: 44px; background: var(--accent);
+    transform: rotate(45deg); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 20px rgba(245,168,0,0.3);
+  }
+  .logo-diamond span { transform: rotate(-45deg); font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: #000; letter-spacing: 1px; }
+  .header-text h1 { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 3px; color: var(--accent); line-height: 1; }
+  .header-text p  { font-size: 12px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; letter-spacing: 1px; margin-top: 3px; }
+
+  main { width: 100%; max-width: 680px; padding: 28px 24px; display: flex; flex-direction: column; gap: 20px; }
+
+  .upload-zone {
+    border: 2px dashed var(--border); border-radius: 4px;
+    padding: 40px 24px; text-align: center; cursor: pointer;
+    background: var(--surface); transition: all 0.2s; position: relative;
+  }
+  .upload-zone:hover { border-color: var(--accent); background: rgba(245,168,0,0.04); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+  .upload-icon {
+    width: 52px; height: 52px; margin: 0 auto 16px;
+    border: 2px solid var(--border); transform: rotate(45deg);
+    display: flex; align-items: center; justify-content: center; background: var(--bg); transition: border-color 0.2s;
+  }
+  .upload-zone:hover .upload-icon { border-color: var(--accent); }
+  .upload-icon svg { transform: rotate(-45deg); color: var(--muted); width: 22px; height: 22px; }
+  .upload-zone:hover .upload-icon svg { color: var(--accent); }
+  .upload-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--text); margin-bottom: 6px; }
+  .upload-sub   { font-size: 13px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+
+  .camera-btn {
+    margin-top: 16px;
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+    padding: 8px 20px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 1px;
+    cursor: pointer; transition: all 0.2s; border-radius: 2px;
+    position: relative; z-index: 2; pointer-events: all;
+  }
+  .camera-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .preview-wrap { position: relative; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; background: var(--surface); }
+  .preview-wrap img { width: 100%; max-height: 300px; object-fit: contain; display: block; }
+  .preview-label { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1px; padding: 4px 8px; color: var(--accent); }
+  .clear-btn {
+    position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7);
+    border: 1px solid var(--border); color: var(--muted); width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; transition: all 0.2s; border-radius: 2px;
+  }
+  .clear-btn:hover { color: var(--danger); border-color: var(--danger); }
+
+  .analyze-btn {
+    width: 100%; padding: 16px; background: var(--accent); color: #000; border: none;
+    font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px;
+    cursor: pointer; transition: all 0.2s; border-radius: 2px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .analyze-btn:hover    { background: #ffc020; }
+  .analyze-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+  .result-card { border: 1px solid var(--border); border-radius: 4px; background: var(--surface); overflow: hidden; animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .result-header { padding: 14px 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+  .result-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .result-header-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--muted); flex: 1; }
+  .result-class-badge {
+    font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px;
+    padding: 3px 10px; border-radius: 2px;
+    background: rgba(245,168,0,0.15); color: var(--accent); border: 1px solid rgba(245,168,0,0.3);
+  }
+  .result-body { padding: 20px 18px; }
+  .result-main-title { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 2px; color: var(--text); line-height: 1.1; margin-bottom: 12px; }
+  .result-text { font-size: 14px; line-height: 1.7; color: #b0bcbc; }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+  .info-cell { background: var(--bg); border: 1px solid var(--border); padding: 12px 14px; border-radius: 2px; }
+  .info-cell-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 5px; }
+  .info-cell-value { font-size: 14px; font-weight: 600; color: var(--text); }
+
+  .loading-wrap { padding: 36px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .loading-diamond { width: 40px; height: 40px; border: 2px solid var(--accent); transform: rotate(45deg); animation: pulse 1s ease-in-out infinite alternate; }
+  @keyframes pulse { from { opacity: 0.3; } to { opacity: 1; box-shadow: 0 0 20px rgba(245,168,0,0.5); } }
+  .loading-text { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 2px; color: var(--muted); }
+
+  .error-wrap { padding: 20px 18px; display: flex; align-items: center; gap: 12px; }
+  .error-icon { width: 24px; height: 24px; border: 1px solid var(--danger); transform: rotate(45deg); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .error-icon span { transform: rotate(-45deg); color: var(--danger); font-size: 12px; }
+  .error-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  .warning-strip {
+    width: 100%; max-width: 680px; padding: 12px 24px; margin-top: 8px;
+    background: rgba(224,60,60,0.07); border-top: 1px solid rgba(224,60,60,0.2);
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #7a5050; letter-spacing: 0.5px; text-align: center;
+  }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 480px) {
+    .info-grid { grid-template-columns: 1fr; }
+    header { padding: 20px 16px 14px; }
+    main   { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PIN SCREEN -->
+<div id="pinScreen">
+  <div class="pin-diamond"><span>HZ</span></div>
+  <div class="pin-title">Hazmat Reader</div>
+  <div class="pin-subtitle">ENTER PIN TO CONTINUE</div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+  </div>
+  <div class="pin-keypad">
+    <button class="pin-key" onclick="pinPress('1')">1</button>
+    <button class="pin-key" onclick="pinPress('2')">2</button>
+    <button class="pin-key" onclick="pinPress('3')">3</button>
+    <button class="pin-key" onclick="pinPress('4')">4</button>
+    <button class="pin-key" onclick="pinPress('5')">5</button>
+    <button class="pin-key" onclick="pinPress('6')">6</button>
+    <button class="pin-key" onclick="pinPress('7')">7</button>
+    <button class="pin-key" onclick="pinPress('8')">8</button>
+    <button class="pin-key" onclick="pinPress('9')">9</button>
+    <button class="pin-key empty"></button>
+    <button class="pin-key" onclick="pinPress('0')">0</button>
+    <button class="pin-key del" onclick="pinDelete()">⌫</button>
+  </div>
+  <div class="pin-message" id="pinMessage"></div>
+</div>
+
+<!-- APP -->
+<header>
+  <div class="logo-diamond"><span>HZ</span></div>
+  <div class="header-text">
+    <h1>Hazmat Reader</h1>
+    <p>DOT PLACARD IDENTIFIER · EMERGENCY REFERENCE</p>
+  </div>
+</header>
+
+<main>
+  <div class="upload-zone" id="uploadZone">
+    <input type="file" id="fileInput" accept="image/*">
+    <div class="upload-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+      </svg>
+    </div>
+    <div class="upload-title">Upload Placard Photo</div>
+    <div class="upload-sub">drag & drop or click to browse</div>
+    <button class="camera-btn" id="cameraBtn" onclick="event.stopPropagation(); document.getElementById('cameraInput').click()">
+      📷 &nbsp;USE CAMERA
+    </button>
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none; position:absolute; pointer-events:none;">
+  </div>
+
+  <div class="preview-wrap hidden" id="previewWrap">
+    <img id="previewImg" src="" alt="Placard preview">
+    <div class="preview-label">IMAGE LOADED</div>
+    <button class="clear-btn" id="clearBtn">✕</button>
+  </div>
+
+  <button class="analyze-btn" id="analyzeBtn" disabled>
+    <span>🔍</span> ANALYZE PLACARD
+  </button>
+
+  <div id="resultArea"></div>
+</main>
+
+<div class="warning-strip">
+  ⚠ FOR REFERENCE ONLY · IN AN EMERGENCY CALL 911 · DO NOT RELY SOLELY ON THIS APP
+</div>
+
+<script>
+  // ── PIN LOGIC ──
+  const CORRECT_PIN  = "1525";
+  const MAX_ATTEMPTS = 5;
+  const LOCKOUT_SECS = 30;
+
+  let pinEntry = "", attempts = 0, lockedOut = false;
+
+  function pinPress(digit) {
+    if (lockedOut || pinEntry.length >= 4) return;
+    pinEntry += digit;
+    updateDots();
+    if (pinEntry.length === 4) checkPin();
+  }
+  function pinDelete() {
+    if (lockedOut) return;
+    pinEntry = pinEntry.slice(0, -1);
+    updateDots();
+  }
+  function updateDots(state) {
+    for (let i = 0; i < 4; i++) {
+      const dot = document.getElementById('d' + i);
+      dot.className = 'pin-dot';
+      if (state === 'error') dot.classList.add('error');
+      else if (i < pinEntry.length) dot.classList.add('filled');
+    }
+  }
+  function checkPin() {
+    if (pinEntry === CORRECT_PIN) {
+      document.getElementById('pinScreen').style.display = 'none';
+    } else {
+      attempts++;
+      updateDots('error');
+      pinEntry = "";
+      if (attempts >= MAX_ATTEMPTS) {
+        startLockout();
+      } else {
+        const left = MAX_ATTEMPTS - attempts;
+        document.getElementById('pinMessage').textContent =
+          `Incorrect PIN. ${left} attempt${left !== 1 ? 's' : ''} remaining.`;
+        setTimeout(() => { updateDots(); document.getElementById('pinMessage').textContent = ''; }, 800);
+      }
+    }
+  }
+  function startLockout() {
+    lockedOut = true;
+    let secs = LOCKOUT_SECS;
+    const msg = document.getElementById('pinMessage');
+    msg.textContent = `Too many attempts. Try again in ${secs}s.`;
+    const timer = setInterval(() => {
+      secs--;
+      msg.textContent = `Too many attempts. Try again in ${secs}s.`;
+      if (secs <= 0) {
+        clearInterval(timer);
+        lockedOut = false; attempts = 0; pinEntry = "";
+        updateDots(); msg.textContent = '';
+      }
+    }, 1000);
+  }
+
+  // ── APP LOGIC ──
+  let imageBase64 = null;
+  let imageMediaType = 'image/jpeg';
+
+  const fileInput   = document.getElementById('fileInput');
+  const cameraInput = document.getElementById('cameraInput');
+  const uploadZone  = document.getElementById('uploadZone');
+  const previewWrap = document.getElementById('previewWrap');
+  const previewImg  = document.getElementById('previewImg');
+  const clearBtn    = document.getElementById('clearBtn');
+  const analyzeBtn  = document.getElementById('analyzeBtn');
+  const resultArea  = document.getElementById('resultArea');
+
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.style.borderColor = 'var(--accent)'; });
+  uploadZone.addEventListener('dragleave', () => uploadZone.style.borderColor = '');
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault(); uploadZone.style.borderColor = '';
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) loadImage(file);
+  });
+
+  fileInput.addEventListener('change',   e => { if (e.target.files[0]) loadImage(e.target.files[0]); });
+  cameraInput.addEventListener('change', e => { if (e.target.files[0]) loadImage(e.target.files[0]); });
+  clearBtn.addEventListener('click',     clearImage);
+  analyzeBtn.addEventListener('click',   analyzePlacard);
+
+  function loadImage(file) {
+    imageMediaType = 'image/jpeg';
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX = 1024;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const compressed = canvas.toDataURL('image/jpeg', 0.8);
+        imageBase64 = compressed.split(',')[1];
+        previewImg.src = compressed;
+        previewWrap.classList.remove('hidden');
+        analyzeBtn.disabled = false;
+        resultArea.innerHTML = '';
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearImage() {
+    imageBase64 = null;
+    previewImg.src = '';
+    previewWrap.classList.add('hidden');
+    analyzeBtn.disabled = true;
+    resultArea.innerHTML = '';
+    fileInput.value = '';
+    cameraInput.value = '';
+  }
+
+  async function analyzePlacard() {
+    if (!imageBase64) return;
+    analyzeBtn.disabled = true;
+    resultArea.innerHTML = `
+      <div class="result-card">
+        <div class="loading-wrap">
+          <div class="loading-diamond"></div>
+          <div class="loading-text">SCANNING PLACARD...</div>
+        </div>
+      </div>`;
+
+    const prompt = `You are a DOT HAZMAT placard expert. Analyze this HAZMAT placard image and return ONLY a JSON object, no markdown, no backticks, no extra text:
+{"detected":true,"hazardClass":"e.g. Class 3","hazardType":"e.g. Flammable Liquid","unNumber":"e.g. UN1993 or null","commonExample":"e.g. Diesel, Paint Thinner","emergencyActions":"2-3 sentences on what to do if there is an accident","fullExplanation":"3-4 plain English sentences explaining what this placard means to a non-expert","dangerLevel":"LOW or MODERATE or HIGH or EXTREME","placard_color":"color of the diamond","symbol_described":"describe the symbol"}
+If no HAZMAT placard is visible return: {"detected":false,"reason":"what you see instead"}`;
+
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: imageMediaType, data: imageBase64 } },
+              { type: 'text', text: prompt }
+            ]
+          }]
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) { showError('API Error: ' + (data?.error?.message || JSON.stringify(data))); return; }
+      const text = data.content.map(b => b.text || '').join('');
+      let result = null;
+      try { result = JSON.parse(text.trim()); } catch(e1) {
+        try { result = JSON.parse(text.replace(/```json|```/gi,'').trim()); } catch(e2) {
+          try { const m = text.match(/\{[\s\S]*\}/); if(m) result = JSON.parse(m[0]); } catch(e3) {
+            showError('Could not parse response. Please try again.'); return;
+          }
+        }
+      }
+      if (!result) { showError('Empty response. Please try again.'); return; }
+      showResult(result);
+    } catch (err) {
+      showError('Error: ' + err.message);
+    } finally {
+      analyzeBtn.disabled = false;
+    }
+  }
+
+  function dangerColor(level) {
+    return { LOW: '#2ecc71', MODERATE: '#f5a800', HIGH: '#e07c3c', EXTREME: '#e03c3c' }[level] || '#f5a800';
+  }
+
+  function showResult(result) {
+    if (!result.detected) {
+      resultArea.innerHTML = `
+        <div class="result-card">
+          <div class="result-header">
+            <div class="result-status-dot" style="background:var(--danger)"></div>
+            <div class="result-header-label">SCAN RESULT</div>
+          </div>
+          <div class="error-wrap">
+            <div class="error-icon"><span>!</span></div>
+            <div class="error-text">No HAZMAT placard detected. ${result.reason || 'Try a clearer, closer photo of the diamond-shaped sign.'}</div>
+          </div>
+        </div>`;
+      return;
+    }
+
+    const dc = dangerColor(result.dangerLevel);
+    resultArea.innerHTML = `
+      <div class="result-card">
+        <div class="result-header">
+          <div class="result-status-dot" style="background:${dc}; box-shadow:0 0 8px ${dc}"></div>
+          <div class="result-header-label">PLACARD IDENTIFIED</div>
+          ${result.hazardClass ? `<div class="result-class-badge">${result.hazardClass}</div>` : ''}
+        </div>
+        <div class="result-body">
+          <div class="result-main-title">${result.hazardType || 'Hazardous Material'}</div>
+          <div class="result-text">${result.fullExplanation || ''}</div>
+          <div class="info-grid">
+            ${result.unNumber     ? `<div class="info-cell"><div class="info-cell-label">UN/NA NUMBER</div><div class="info-cell-value">${result.unNumber}</div></div>` : ''}
+            ${result.commonExample? `<div class="info-cell"><div class="info-cell-label">COMMON EXAMPLES</div><div class="info-cell-value">${result.commonExample}</div></div>` : ''}
+            ${result.dangerLevel  ? `<div class="info-cell"><div class="info-cell-label">DANGER LEVEL</div><div class="info-cell-value" style="color:${dc}">${result.dangerLevel}</div></div>` : ''}
+            ${result.placard_color? `<div class="info-cell"><div class="info-cell-label">PLACARD COLOR</div><div class="info-cell-value">${result.placard_color}</div></div>` : ''}
+          </div>
+          ${result.emergencyActions ? `
+          <div style="margin-top:16px; padding:14px; background:rgba(224,60,60,0.07); border:1px solid rgba(224,60,60,0.2); border-radius:2px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; color:#a05050; margin-bottom:7px;">🚨 IF THERE IS AN ACCIDENT</div>
+            <div style="font-size:13px; color:#c8a8a8; line-height:1.6;">${result.emergencyActions}</div>
+          </div>` : ''}
+        </div>
+      </div>`;
+  }
+
+  function showError(msg) {
+    resultArea.innerHTML = `
+      <div class="result-card">
+        <div class="error-wrap">
+          <div class="error-icon"><span>!</span></div>
+          <div class="error-text">${msg}</div>
+        </div>
+      </div>`;
+  }
+</script>
+</body>
+</html>
