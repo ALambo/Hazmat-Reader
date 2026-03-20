@@ -212,6 +212,22 @@
 
   .hidden { display: none !important; }
 
+  .try-again-btn {
+    margin-top: 12px;
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .try-again-btn:hover { border-color: var(--accent); color: var(--accent); }
+
   /* ── DISCLAIMER SCREEN ── */
   #disclaimerScreen {
     position: fixed;
@@ -590,17 +606,7 @@ Rules:
 
   function showResult(result) {
     if (!result.detected) {
-      resultArea.innerHTML = `
-        <div class="result-card">
-          <div class="result-header">
-            <div class="result-status-dot" style="background:var(--danger)"></div>
-            <div class="result-header-label">SCAN RESULT</div>
-          </div>
-          <div class="error-wrap">
-            <div class="error-icon"><span>!</span></div>
-            <div class="error-text">No HAZMAT placard detected. ${result.reason || 'Try a clearer, closer photo of the diamond-shaped sign.'}</div>
-          </div>
-        </div>`;
+      showNotDetected(result.reason);
       return;
     }
 
@@ -656,14 +662,54 @@ Rules:
     document.getElementById('disclaimerScreen').style.display = 'none';
   });
 
+  function getErrorMessage(msg) {
+    const m = msg.toLowerCase();
+    if (m.includes('fetch') || m.includes('network') || m.includes('failed to fetch') || m.includes('load failed'))
+      return 'Connection failed. Check your internet connection and try again.';
+    if (m.includes('parse') || m.includes('pattern') || m.includes('json'))
+      return 'The AI returned an unexpected response. Please try again.';
+    if (m.includes('api key') || m.includes('invalid_api_key') || m.includes('authentication'))
+      return 'Authentication error. The API key may be invalid or expired.';
+    if (m.includes('rate') || m.includes('429'))
+      return 'Too many requests. Please wait a moment and try again.';
+    if (m.includes('503') || m.includes('502') || m.includes('unavailable'))
+      return 'Service temporarily unavailable. Please try again in a moment.';
+    if (m.includes('empty response'))
+      return 'No response received from the AI. Please try again.';
+    return msg;
+  }
+
   function showError(msg) {
+    const friendly = getErrorMessage(msg);
     resultArea.innerHTML = `
       <div class="result-card">
         <div class="error-wrap">
           <div class="error-icon"><span>!</span></div>
-          <div class="error-text">${msg}</div>
+          <div class="error-text">${friendly}</div>
+        </div>
+        <div style="padding: 0 18px 16px;">
+          <button class="try-again-btn" id="tryAgainBtn">↺ &nbsp;TRY AGAIN</button>
         </div>
       </div>`;
+    document.getElementById('tryAgainBtn').addEventListener('click', clearImage);
+  }
+
+  function showNotDetected(reason) {
+    resultArea.innerHTML = `
+      <div class="result-card">
+        <div class="result-header">
+          <div class="result-status-dot" style="background:var(--danger)"></div>
+          <div class="result-header-label">SCAN RESULT</div>
+        </div>
+        <div class="error-wrap">
+          <div class="error-icon"><span>!</span></div>
+          <div class="error-text">${reason || 'No HAZMAT placard detected. Ensure the full diamond is visible, well-lit, and in focus.'}</div>
+        </div>
+        <div style="padding: 0 18px 16px;">
+          <button class="try-again-btn" id="tryAgainBtn2">↺ &nbsp;TRY AGAIN</button>
+        </div>
+      </div>`;
+    document.getElementById('tryAgainBtn2').addEventListener('click', clearImage);
   }
 </script>
 </body>
