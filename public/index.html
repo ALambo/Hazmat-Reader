@@ -212,6 +212,87 @@
 
   .hidden { display: none !important; }
 
+  /* ── DISCLAIMER SCREEN ── */
+  #disclaimerScreen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 998;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+  }
+  .disc-diamond {
+    width: 56px; height: 56px;
+    background: var(--danger);
+    transform: rotate(45deg);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 28px;
+    box-shadow: 0 0 30px rgba(224,60,60,0.3);
+  }
+  .disc-diamond span {
+    transform: rotate(-45deg);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px; color: #fff; letter-spacing: 1px;
+  }
+  .disc-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px; letter-spacing: 3px;
+    color: var(--danger); margin-bottom: 6px; text-align: center;
+  }
+  .disc-subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; letter-spacing: 2px;
+    color: var(--muted); margin-bottom: 32px; text-align: center;
+  }
+  .disc-box {
+    width: 100%; max-width: 480px;
+    background: var(--surface);
+    border: 1px solid rgba(224,60,60,0.3);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .disc-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    margin-bottom: 16px;
+  }
+  .disc-item:last-child { margin-bottom: 0; }
+  .disc-bullet {
+    width: 18px; height: 18px;
+    background: rgba(224,60,60,0.15);
+    border: 1px solid rgba(224,60,60,0.4);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .disc-text {
+    font-size: 14px; line-height: 1.6; color: #b0bcbc;
+  }
+  .disc-text strong {
+    color: var(--text); font-weight: 600;
+  }
+  .disc-agree-btn {
+    width: 100%; max-width: 480px;
+    padding: 16px;
+    background: var(--danger); color: #fff;
+    border: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px; letter-spacing: 3px;
+    cursor: pointer; border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .disc-agree-btn:hover { background: #f04040; }
+  .disc-footer {
+    margin-top: 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; letter-spacing: 1px;
+    color: var(--muted); text-align: center;
+    max-width: 480px; line-height: 1.6;
+  }
+
   @media (max-width: 480px) {
     .info-grid { grid-template-columns: 1fr; }
     header { padding: 20px 16px 14px; }
@@ -247,6 +328,33 @@
     <button class="pin-key del" onclick="pinDelete()">⌫</button>
   </div>
   <div class="pin-message" id="pinMessage"></div>
+</div>
+
+<!-- DISCLAIMER SCREEN -->
+<div id="disclaimerScreen">
+  <div class="disc-diamond"><span>!</span></div>
+  <div class="disc-title">Important Disclaimer</div>
+  <div class="disc-subtitle">PLEASE READ BEFORE CONTINUING</div>
+  <div class="disc-box">
+    <div class="disc-item">
+      <div class="disc-bullet"></div>
+      <div class="disc-text"><strong>For reference only.</strong> This app provides general information about HAZMAT placards and should not be your sole source of safety information.</div>
+    </div>
+    <div class="disc-item">
+      <div class="disc-bullet"></div>
+      <div class="disc-text"><strong>Always call 911</strong> in an emergency. Do not rely on this app to make life-safety decisions.</div>
+    </div>
+    <div class="disc-item">
+      <div class="disc-bullet"></div>
+      <div class="disc-text"><strong>Information may not be 100% accurate.</strong> AI interpretation can make mistakes. Always verify with official sources.</div>
+    </div>
+    <div class="disc-item">
+      <div class="disc-bullet"></div>
+      <div class="disc-text"><strong>First responders</strong> should follow their department's official HAZMAT protocols and not rely solely on this app.</div>
+    </div>
+  </div>
+  <button class="disc-agree-btn" id="disclaimerAgreeBtn">I UNDERSTAND</button>
+  <div class="disc-footer">By continuing you acknowledge that you have read and understood this disclaimer.</div>
 </div>
 
 <!-- APP -->
@@ -321,6 +429,8 @@
   function checkPin() {
     if (pinEntry === CORRECT_PIN) {
       document.getElementById('pinScreen').style.display = 'none';
+      const disc = document.getElementById('disclaimerScreen');
+      disc.style.display = 'flex';
     } else {
       attempts++;
       updateDots('error');
@@ -540,6 +650,11 @@ Rules:
 
     resultArea.innerHTML = html;
   }
+
+  // Disclaimer
+  document.getElementById('disclaimerAgreeBtn').addEventListener('click', () => {
+    document.getElementById('disclaimerScreen').style.display = 'none';
+  });
 
   function showError(msg) {
     resultArea.innerHTML = `
