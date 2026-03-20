@@ -254,7 +254,7 @@
   <div class="logo-diamond"><span>HZ</span></div>
   <div class="header-text">
     <h1>Hazmat Reader</h1>
-    <p>DOT PLACARD IDENTIFIER · HAZMAT REFERENCE</p>
+    <p>DOT PLACARD IDENTIFIER · EMERGENCY REFERENCE</p>
   </div>
 </header>
 
@@ -426,9 +426,16 @@
         </div>
       </div>`;
 
-    const prompt = `You are a DOT HAZMAT placard expert. Analyze this HAZMAT placard image and return ONLY a JSON object, no markdown, no backticks, no extra text:
-{"detected":true,"hazardClass":"e.g. Class 3","hazardType":"e.g. Flammable Liquid","unNumber":"e.g. UN1993 or null","commonExample":"e.g. Diesel, Paint Thinner","emergencyActions":"2-3 sentences on what to do if there is an accident","fullExplanation":"3-4 plain English sentences explaining what this placard means to a non-expert","dangerLevel":"LOW or MODERATE or HIGH or EXTREME","placard_color":"color of the diamond","symbol_described":"describe the symbol"}
-If no HAZMAT placard is visible return: {"detected":false,"reason":"what you see instead"}`;
+    const prompt = `You are a DOT HAZMAT placard expert. Look carefully at this image and identify ALL HAZMAT placards you can see.
+
+Return ONLY raw JSON, absolutely no markdown, no backticks, no extra words before or after:
+{"detected":true,"placards":[{"hazardClass":"Class 3","hazardType":"Flammable Liquid","unNumber":"UN1993","commonExample":"Diesel, Paint Thinner","emergencyActions":"2-3 sentences on what to do if there is an accident","fullExplanation":"3-4 plain English sentences explaining this placard to a non-expert","dangerLevel":"LOW or MODERATE or HIGH or EXTREME","placard_color":"red","symbol_described":"flame symbol"}]}
+
+Rules:
+- Always use the placards array even if there is only one placard
+- Each placard gets its own object in the array
+- dangerLevel must be exactly one of: LOW, MODERATE, HIGH, EXTREME
+- If no HAZMAT placard is visible return exactly: {"detected":false,"reason":"brief description of what you see instead"}`;
 
     try {
       const res = await fetch('/api/analyze', {
@@ -436,7 +443,7 @@ If no HAZMAT placard is visible return: {"detected":false,"reason":"what you see
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
+          max_tokens: 2000,
           messages: [{
             role: 'user',
             content: [
@@ -487,30 +494,51 @@ If no HAZMAT placard is visible return: {"detected":false,"reason":"what you see
       return;
     }
 
-    const dc = dangerColor(result.dangerLevel);
-    resultArea.innerHTML = `
-      <div class="result-card">
-        <div class="result-header">
-          <div class="result-status-dot" style="background:${dc}; box-shadow:0 0 8px ${dc}"></div>
-          <div class="result-header-label">PLACARD IDENTIFIED</div>
-          ${result.hazardClass ? `<div class="result-class-badge">${result.hazardClass}</div>` : ''}
-        </div>
-        <div class="result-body">
-          <div class="result-main-title">${result.hazardType || 'Hazardous Material'}</div>
-          <div class="result-text">${result.fullExplanation || ''}</div>
-          <div class="info-grid">
-            ${result.unNumber     ? `<div class="info-cell"><div class="info-cell-label">UN/NA NUMBER</div><div class="info-cell-value">${result.unNumber}</div></div>` : ''}
-            ${result.commonExample? `<div class="info-cell"><div class="info-cell-label">COMMON EXAMPLES</div><div class="info-cell-value">${result.commonExample}</div></div>` : ''}
-            ${result.dangerLevel  ? `<div class="info-cell"><div class="info-cell-label">DANGER LEVEL</div><div class="info-cell-value" style="color:${dc}">${result.dangerLevel}</div></div>` : ''}
-            ${result.placard_color? `<div class="info-cell"><div class="info-cell-label">PLACARD COLOR</div><div class="info-cell-value">${result.placard_color}</div></div>` : ''}
-          </div>
-          ${result.emergencyActions ? `
-          <div style="margin-top:16px; padding:14px; background:rgba(224,60,60,0.07); border:1px solid rgba(224,60,60,0.2); border-radius:2px;">
-            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; color:#a05050; margin-bottom:7px;">🚨 IF THERE IS AN ACCIDENT</div>
-            <div style="font-size:13px; color:#c8a8a8; line-height:1.6;">${result.emergencyActions}</div>
-          </div>` : ''}
-        </div>
+    // Support both old single format and new array format
+    const placards = result.placards
+      ? result.placards
+      : [{ hazardClass: result.hazardClass, hazardType: result.hazardType, unNumber: result.unNumber,
+           commonExample: result.commonExample, emergencyActions: result.emergencyActions,
+           fullExplanation: result.fullExplanation, dangerLevel: result.dangerLevel,
+           placard_color: result.placard_color }];
+
+    const count = placards.length;
+    let html = '';
+
+    if (count > 1) {
+      html += `<div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--accent); margin-bottom:12px; padding:8px 12px; border:1px solid rgba(245,168,0,0.3); border-radius:2px; background:rgba(245,168,0,0.07); text-align:center;">
+        ⚠ ${count} PLACARDS DETECTED IN THIS IMAGE
       </div>`;
+    }
+
+    placards.forEach((p, i) => {
+      const dc = dangerColor(p.dangerLevel);
+      html += `
+        <div class="result-card" style="${i < count-1 ? 'margin-bottom:12px;' : ''}">
+          <div class="result-header">
+            <div class="result-status-dot" style="background:${dc}; box-shadow:0 0 8px ${dc}"></div>
+            <div class="result-header-label">${count > 1 ? 'PLACARD ' + (i+1) + ' OF ' + count : 'PLACARD IDENTIFIED'}</div>
+            ${p.hazardClass ? `<div class="result-class-badge">${p.hazardClass}</div>` : ''}
+          </div>
+          <div class="result-body">
+            <div class="result-main-title">${p.hazardType || 'Hazardous Material'}</div>
+            <div class="result-text">${p.fullExplanation || ''}</div>
+            <div class="info-grid">
+              ${p.unNumber      ? `<div class="info-cell"><div class="info-cell-label">UN/NA NUMBER</div><div class="info-cell-value">${p.unNumber}</div></div>` : ''}
+              ${p.commonExample ? `<div class="info-cell"><div class="info-cell-label">COMMON EXAMPLES</div><div class="info-cell-value">${p.commonExample}</div></div>` : ''}
+              ${p.dangerLevel   ? `<div class="info-cell"><div class="info-cell-label">DANGER LEVEL</div><div class="info-cell-value" style="color:${dc}">${p.dangerLevel}</div></div>` : ''}
+              ${p.placard_color ? `<div class="info-cell"><div class="info-cell-label">PLACARD COLOR</div><div class="info-cell-value">${p.placard_color}</div></div>` : ''}
+            </div>
+            ${p.emergencyActions ? `
+            <div style="margin-top:16px; padding:14px; background:rgba(224,60,60,0.07); border:1px solid rgba(224,60,60,0.2); border-radius:2px;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; color:#a05050; margin-bottom:7px;">🚨 IF THERE IS AN ACCIDENT</div>
+              <div style="font-size:13px; color:#c8a8a8; line-height:1.6;">${p.emergencyActions}</div>
+            </div>` : ''}
+          </div>
+        </div>`;
+    });
+
+    resultArea.innerHTML = html;
   }
 
   function showError(msg) {
