@@ -187,12 +187,12 @@
   }
   .result-body { padding: 20px 18px; }
   .result-main-title { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 2px; color: var(--text); line-height: 1.1; margin-bottom: 12px; }
-  .result-text { font-size: 14px; line-height: 1.7; color: #b0bcbc; }
+  .result-text { font-size: 16px; line-height: 1.7; color: #b0bcbc; }
 
   .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
   .info-cell { background: var(--bg); border: 1px solid var(--border); padding: 12px 14px; border-radius: 2px; }
-  .info-cell-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 5px; }
-  .info-cell-value { font-size: 14px; font-weight: 600; color: var(--text); }
+  .info-cell-label { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 1px; color: var(--muted); margin-bottom: 5px; }
+  .info-cell-value { font-size: 17px; font-weight: 600; color: var(--text); }
 
   .loading-wrap { padding: 36px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; }
   .loading-diamond { width: 40px; height: 40px; border: 2px solid var(--accent); transform: rotate(45deg); animation: pulse 1s ease-in-out infinite alternate; }
@@ -531,8 +531,8 @@ Rules:
             </div>
             ${p.emergencyActions ? `
             <div style="margin-top:16px; padding:14px; background:rgba(224,60,60,0.07); border:1px solid rgba(224,60,60,0.2); border-radius:2px;">
-              <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; color:#a05050; margin-bottom:7px;">🚨 IF THERE IS AN ACCIDENT</div>
-              <div style="font-size:13px; color:#c8a8a8; line-height:1.6;">${p.emergencyActions}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:1px; color:#a05050; margin-bottom:7px;">🚨 IF THERE IS AN ACCIDENT</div>
+              <div style="font-size:15px; color:#c8a8a8; line-height:1.6;">${p.emergencyActions}</div>
             </div>` : ''}
           </div>
         </div>`;
