@@ -548,9 +548,25 @@
       <div class="result-card">
         <div class="loading-wrap">
           <div class="loading-diamond"></div>
-          <div class="loading-text">SCANNING PLACARD...</div>
+          <div class="loading-text" id="loadingText">READING PLACARD...</div>
         </div>
       </div>`;
+
+    const messages = [
+      'READING PLACARD...',
+      'IDENTIFYING HAZARD CLASS...',
+      'CHECKING UN NUMBER...',
+      'ANALYZING SYMBOLS...',
+      'LOOKING UP MATERIALS...',
+      'PREPARING EMERGENCY INFO...',
+      'ALMOST DONE...'
+    ];
+    let msgIndex = 0;
+    const msgTimer = setInterval(() => {
+      msgIndex = (msgIndex + 1) % messages.length;
+      const el = document.getElementById('loadingText');
+      if (el) el.textContent = messages[msgIndex];
+    }, 600);
 
     const prompt = `You are a DOT HAZMAT placard expert. Look carefully at this image and identify ALL HAZMAT placards you can see.
 
@@ -594,8 +610,10 @@ Rules:
       if (!result) { showError('Empty response. Please try again.'); return; }
       showResult(result);
     } catch (err) {
+      clearInterval(msgTimer);
       showError('Error: ' + err.message);
     } finally {
+      clearInterval(msgTimer);
       analyzeBtn.disabled = false;
     }
   }
