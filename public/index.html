@@ -213,6 +213,82 @@
 
   .hidden { display: none !important; }
 
+  /* ── SAMPLES DROPDOWN ── */
+  .upload-zone-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+  }
+  .samples-wrap {
+    position: relative;
+    z-index: 10;
+  }
+  .samples-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .samples-btn:hover { border-color: var(--accent); background: rgba(245,168,0,0.08); }
+  .samples-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: #1a1f1f;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    min-width: 260px;
+    max-height: 320px;
+    overflow-y: auto;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    z-index: 999;
+  }
+  .samples-dropdown.open { display: block; }
+  .sample-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .sample-item:last-child { border-bottom: none; }
+  .sample-item:hover { background: rgba(245,168,0,0.07); }
+  .sample-diamond {
+    width: 28px;
+    height: 28px;
+    transform: rotate(45deg);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0;
+  }
+  .sample-info { flex: 1; }
+  .sample-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1px;
+  }
+  .sample-un {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
   /* ── RESULT TABS ── */
   .tabs-wrap {
     display: flex;
@@ -565,6 +641,13 @@
 <main>
   <div class="upload-zone" id="uploadZone">
     <input type="file" id="fileInput" accept="image/*">
+    <div class="upload-zone-top">
+      <div></div>
+      <div class="samples-wrap">
+        <button class="samples-btn" id="samplesBtn" onclick="event.stopPropagation(); toggleSamples()">SAMPLES ▾</button>
+        <div class="samples-dropdown" id="samplesDropdown"></div>
+      </div>
+    </div>
     <div class="upload-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
@@ -659,6 +742,7 @@
 
   // ── APP LOGIC ──
   let imageBase64 = null;
+  let currentSample = null;
   let imageMediaType = 'image/jpeg';
 
   const fileInput   = document.getElementById('fileInput');
@@ -713,6 +797,7 @@
 
   function clearImage() {
     imageBase64 = null;
+    currentSample = null;
     previewImg.src = '';
     previewWrap.classList.add('hidden');
     analyzeBtn.disabled = true;
@@ -722,7 +807,7 @@
   }
 
   async function analyzePlacard() {
-    if (!imageBase64) return;
+    if (!imageBase64 && !currentSample) return;
     analyzeBtn.disabled = true;
     resultArea.innerHTML = `
       <div class="result-card">
@@ -762,6 +847,14 @@ Rules:
 - history: 2-3 real notable historical accidents or spills involving this material
 - If no HAZMAT placard is visible return exactly: {"detected":false,"reason":"brief description of what you see instead"}`;
 
+    // Build message content - use text for samples, image for real photos
+    const messageContent = currentSample
+      ? [{ type: 'text', text: `This is a DOT HAZMAT placard with the following details:\nUN Number: ${currentSample.un}\nHazard Class: ${currentSample.class}\nMaterial: ${currentSample.name}\nPlacard Color: ${currentSample.color}\n\n${prompt}` }]
+      : [
+          { type: 'image', source: { type: 'base64', media_type: imageMediaType, data: imageBase64 } },
+          { type: 'text', text: prompt }
+        ];
+
     try {
       const res = await fetch('/api/analyze', {
         method: 'POST',
@@ -769,13 +862,7 @@ Rules:
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 3000,
-          messages: [{
-            role: 'user',
-            content: [
-              { type: 'image', source: { type: 'base64', media_type: imageMediaType, data: imageBase64 } },
-              { type: 'text', text: prompt }
-            ]
-          }]
+          messages: [{ role: 'user', content: messageContent }]
         })
       });
 
@@ -844,7 +931,7 @@ Rules:
             ${p.dangerLevel   ? `<div class="info-cell"><div class="info-cell-label">DANGER LEVEL</div><div class="info-cell-value" style="color:${dc}">${p.dangerLevel}</div></div>` : ''}
             ${p.placard_color ? `<div class="info-cell"><div class="info-cell-label">PLACARD COLOR</div><div class="info-cell-value">${p.placard_color}</div></div>` : ''}
           </div>
-          ${p.emergencyActions ? `<div style="margin-top:16px;padding:14px;background:rgba(224,60,60,0.07);border:1px solid rgba(224,60,60,0.2);border-radius:2px;"><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.5px;color:#a05050;margin-bottom:7px;">🚨 IF THERE IS AN ACCIDENT</div><div style="font-size:15px;color:#c8a8a8;line-height:1.6;">${p.emergencyActions}</div></div>` : ''}
+          ${p.emergencyActions ? `<div style="margin-top:16px;padding:14px;background:rgba(224,60,60,0.07);border:1px solid rgba(224,60,60,0.2);border-radius:2px;"><div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:1px;color:#a05050;margin-bottom:9px;font-weight:600;">🚨 IF THERE IS AN ACCIDENT</div><div style="font-size:17px;color:#c8a8a8;line-height:1.7;">${p.emergencyActions}</div></div>` : ''}
         </div>
         <div id="${id}-news" class="tab-panel">${newsHtml}</div>
         <div id="${id}-supplies" class="tab-panel">${suppliesHtml}</div>
@@ -878,6 +965,207 @@ Rules:
     }
     placards.forEach((p, i) => { html += buildPlacardCard(p, i, count); });
     resultArea.innerHTML = html;
+  }
+
+  // ── SAMPLES ──
+  const SAMPLES = [
+    { name: 'Flammable Liquid',        un: 'UN1993', class: '3',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/DOT_hazmat_class_3.svg/200px-DOT_hazmat_class_3.svg.png' },
+    { name: 'Gasoline',                un: 'UN1203', class: '3',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/DOT_hazmat_class_3.svg/200px-DOT_hazmat_class_3.svg.png' },
+    { name: 'Aviation Fuel',           un: 'UN1863', class: '3',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/DOT_hazmat_class_3.svg/200px-DOT_hazmat_class_3.svg.png' },
+    { name: 'Diesel Fuel',             un: 'UN1202', class: '3',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/DOT_hazmat_class_3.svg/200px-DOT_hazmat_class_3.svg.png' },
+    { name: 'Flammable Gas',           un: 'UN1954', class: '2.1', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/DOT_hazmat_class_2.1.svg/200px-DOT_hazmat_class_2.1.svg.png' },
+    { name: 'Non-Flammable Gas',       un: 'UN1956', class: '2.2', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/DOT_hazmat_class_2.2.svg/200px-DOT_hazmat_class_2.2.svg.png' },
+    { name: 'Toxic Gas',               un: 'UN1017', class: '2.3', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/DOT_hazmat_class_2.3.svg/200px-DOT_hazmat_class_2.3.svg.png' },
+    { name: 'Explosives 1.1',          un: 'UN0004', class: '1',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/DOT_hazmat_class_1.svg/200px-DOT_hazmat_class_1.svg.png' },
+    { name: 'Flammable Solid',         un: 'UN1325', class: '4.1', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/DOT_hazmat_class_4.1.svg/200px-DOT_hazmat_class_4.1.svg.png' },
+    { name: 'Spontaneously Combustible', un: 'UN2845', class: '4.2', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/DOT_hazmat_class_4.2.svg/200px-DOT_hazmat_class_4.2.svg.png' },
+    { name: 'Dangerous When Wet',      un: 'UN3170', class: '4.3', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/DOT_hazmat_class_4.3.svg/200px-DOT_hazmat_class_4.3.svg.png' },
+    { name: 'Oxidizer',                un: 'UN1479', class: '5.1', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/DOT_hazmat_class_5.1.svg/200px-DOT_hazmat_class_5.1.svg.png' },
+    { name: 'Hydrogen Peroxide',       un: 'UN2014', class: '5.1', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/DOT_hazmat_class_5.1.svg/200px-DOT_hazmat_class_5.1.svg.png' },
+    { name: 'Poison / Toxic',          un: 'UN2810', class: '6.1', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/DOT_hazmat_class_6.1.svg/200px-DOT_hazmat_class_6.1.svg.png' },
+    { name: 'Infectious Substance',    un: 'UN2814', class: '6.2', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/DOT_hazmat_class_6.2.svg/200px-DOT_hazmat_class_6.2.svg.png' },
+    { name: 'Radioactive I',           un: 'UN2910', class: '7',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/DOT_hazmat_class_7.svg/200px-DOT_hazmat_class_7.svg.png' },
+    { name: 'Corrosive Liquid',        un: 'UN1760', class: '8',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/DOT_hazmat_class_8.svg/200px-DOT_hazmat_class_8.svg.png' },
+    { name: 'Sulfuric Acid',           un: 'UN1830', class: '8',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/DOT_hazmat_class_8.svg/200px-DOT_hazmat_class_8.svg.png' },
+    { name: 'Potassium Hydroxide',     un: 'UN1814', class: '8',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/DOT_hazmat_class_8.svg/200px-DOT_hazmat_class_8.svg.png' },
+    { name: 'Miscellaneous',           un: 'UN3082', class: '9',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/DOT_hazmat_class_9.svg/200px-DOT_hazmat_class_9.svg.png' },
+  ];
+
+  function buildSamplesDropdown() {
+    const dd = document.getElementById('samplesDropdown');
+    dd.innerHTML = SAMPLES.map((s, i) => `
+      <div class="sample-item" onclick="loadSample(${i})">
+        <img src="${s.img}" style="width:36px;height:36px;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">
+        <div class="sample-info">
+          <div class="sample-name">${s.name}</div>
+          <div class="sample-un">${s.un} · CLASS ${s.class}</div>
+        </div>
+      </div>`).join('');
+  }
+  buildSamplesDropdown();
+
+  function toggleSamples() {
+    const dd = document.getElementById('samplesDropdown');
+    dd.classList.toggle('open');
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.samples-wrap')) {
+      document.getElementById('samplesDropdown').classList.remove('open');
+    }
+  });
+
+  // SVG symbol paths for each hazard class
+  function getSymbolSVG(cls, color) {
+    const c = color;
+    switch(cls.toString()) {
+      case '3': case '2.1': case '4.1':
+        // Flame
+        return `<g transform="translate(200,140)">
+          <path d="M0,-45 C5,-30 20,-20 15,-5 C25,-15 20,-35 30,-40 C35,-20 25,0 30,15 C40,0 38,-20 45,-30 C55,0 45,30 30,45 C35,35 32,20 25,15 C28,30 20,42 0,45 C-20,42 -28,30 -25,15 C-32,20 -35,35 -30,45 C-45,30 -55,0 -45,-30 C-38,-20 -40,0 -30,15 C-25,0 -35,-20 -30,-40 C-20,-35 -25,-15 -15,-5 C-20,-20 -5,-30 0,-45 Z" fill="${c}" stroke="${c === '#fff' ? 'rgba(255,255,255,0.3)' : 'none'}" stroke-width="1"/>
+          <rect x="-25" y="30" width="50" height="8" rx="2" fill="${c}"/>
+        </g>`;
+      case '5.1': case '5.2':
+        // Flame over circle (oxidizer)
+        return `<g transform="translate(200,140)">
+          <circle cx="0" cy="20" r="28" fill="none" stroke="${c}" stroke-width="6"/>
+          <path d="M0,-45 C5,-30 18,-18 13,-5 C22,-14 18,-32 26,-38 C30,-18 22,0 26,13 C34,-2 32,-20 38,-28 C46,-2 38,24 26,38 C-26,38 -46,-2 -38,-28 C-32,-20 -34,-2 -26,13 C-22,0 -30,-18 -26,-38 C-18,-32 -22,-14 -13,-5 C-18,-18 -5,-30 0,-45 Z" fill="${c}"/>
+        </g>`;
+      case '8':
+        // Corrosive - two test tubes dripping on surfaces
+        return `<g transform="translate(200,145)">
+          <rect x="-42" y="-40" width="16" height="38" rx="3" fill="none" stroke="${c}" stroke-width="4"/>
+          <path d="M-42,0 Q-50,15 -46,28 Q-40,38 -34,28 Q-30,15 -38,0" fill="${c}" opacity="0.7"/>
+          <rect x="26" y="-40" width="16" height="38" rx="3" fill="none" stroke="${c}" stroke-width="4"/>
+          <path d="M26,0 Q18,15 22,28 Q28,38 34,28 Q38,15 30,0" fill="${c}" opacity="0.7"/>
+          <rect x="-55" y="28" width="38" height="8" rx="2" fill="${c}"/>
+          <rect x="17" y="28" width="38" height="8" rx="2" fill="${c}"/>
+          <path d="M-38,8 L-10,35 M-10,8 L-38,35" stroke="${c}" stroke-width="4" opacity="0.5"/>
+          <path d="M10,8 L38,35 M38,8 L10,35" stroke="${c}" stroke-width="4" opacity="0.5"/>
+        </g>`;
+      case '1':
+        // Explosion burst
+        return `<g transform="translate(200,145)">
+          <circle cx="0" cy="0" r="22" fill="${c}"/>
+          ${Array.from({length:12},(_,i)=>{const a=i*30*Math.PI/180;const r1=26;const r2=44;return `<line x1="${Math.cos(a)*r1}" y1="${Math.sin(a)*r1}" x2="${Math.cos(a)*r2}" y2="${Math.sin(a)*r2}" stroke="${c}" stroke-width="5" stroke-linecap="round"/>`}).join('')}
+          <circle cx="0" cy="0" r="14" fill="${c === '#fff' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'}"/>
+        </g>`;
+      case '2.2':
+        // Gas cylinder
+        return `<g transform="translate(200,145)">
+          <rect x="-22" y="-42" width="44" height="68" rx="10" fill="none" stroke="${c}" stroke-width="5"/>
+          <rect x="-12" y="-52" width="24" height="14" rx="4" fill="none" stroke="${c}" stroke-width="4"/>
+          <line x1="0" y1="-38" x2="0" y2="10" stroke="${c}" stroke-width="3" opacity="0.4"/>
+          <ellipse cx="0" cy="26" rx="22" ry="6" fill="none" stroke="${c}" stroke-width="3" opacity="0.5"/>
+        </g>`;
+      case '2.3': case '6.1':
+        // Skull and crossbones
+        return `<g transform="translate(200,148)">
+          <circle cx="0" cy="-18" r="28" fill="none" stroke="${c}" stroke-width="5"/>
+          <circle cx="-10" cy="-22" r="7" fill="${c}"/>
+          <circle cx="10" cy="-22" r="7" fill="${c}"/>
+          <path d="M-8,0 L-8,16 L8,16 L8,0" fill="none" stroke="${c}" stroke-width="5" stroke-linejoin="round"/>
+          <line x1="-3" y1="8" x2="-3" y2="16" stroke="${c === '#fff' ? '#000' : '#fff'}" stroke-width="3"/>
+          <line x1="3" y1="8" x2="3" y2="16" stroke="${c === '#fff' ? '#000' : '#fff'}" stroke-width="3"/>
+          <line x1="-36" y1="22" x2="36" y2="38" stroke="${c}" stroke-width="5" stroke-linecap="round"/>
+          <line x1="36" y1="22" x2="-36" y2="38" stroke="${c}" stroke-width="5" stroke-linecap="round"/>
+        </g>`;
+      case '7':
+        // Radioactive trefoil
+        return `<g transform="translate(200,145)">
+          <circle cx="0" cy="0" r="10" fill="${c}"/>
+          ${[0,120,240].map(a=>{const r=a*Math.PI/180;return `<path d="M${Math.cos(r)*12},${Math.sin(r)*12} A38,38 0 0,1 ${Math.cos((a+60)*Math.PI/180)*38},${Math.sin((a+60)*Math.PI/180)*38} A38,38 0 0,1 ${Math.cos((a+60)*Math.PI/180)*12},${Math.sin((a+60)*Math.PI/180)*12} Z" fill="${c}"/>`}).join('')}
+        </g>`;
+      case '6.2':
+        // Biohazard
+        return `<g transform="translate(200,145)">
+          <text x="0" y="15" font-size="72" text-anchor="middle" fill="${c}">☣</text>
+        </g>`;
+      case '4': case '4.2':
+        // Flame with W underneath (dangerous when wet)
+        return `<g transform="translate(200,145)">
+          <path d="M0,-42 C5,-28 18,-18 13,-5 C22,-14 18,-30 26,-36 C30,-16 22,2 26,14 C34,0 32,-18 38,-26 C46,0 38,26 26,38 L-26,38 C-38,26 -46,0 -38,-26 C-32,-18 -34,0 -26,14 C-22,2 -30,-16 -26,-36 C-18,-30 -22,-14 -13,-5 C-18,-18 -5,-28 0,-42 Z" fill="${c}"/>
+          <text x="0" y="52" font-size="28" font-weight="bold" text-anchor="middle" fill="${c}" font-family="Arial">W</text>
+        </g>`;
+      default:
+        return `<text x="200" y="155" font-size="52" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="${c}" font-family="Arial">${cls}</text>`;
+    }
+  }
+
+  function buildPlacardSVG(s) {
+    const sz = 400;
+    const cx = sz/2, cy = sz/2;
+    const outerR = 188;
+    const innerR = 172;
+    const borderR = 148;
+
+    // Diamond points
+    const outerPts = `${cx},${cy-outerR} ${cx+outerR},${cy} ${cx},${cy+outerR} ${cx-outerR},${cy}`;
+    const innerPts = `${cx},${cy-innerR} ${cx+innerR},${cy} ${cx},${cy+innerR} ${cx-innerR},${cy}`;
+    const borderPts = `${cx},${cy-borderR} ${cx+borderR},${cy} ${cx},${cy+borderR} ${cx-borderR},${cy}`;
+
+    const tc = s.textColor;
+    const unNum = s.un.replace('UN','');
+
+    // White number box dimensions
+    const boxW = 170, boxH = 58;
+    const boxX = cx - boxW/2;
+    const boxY = cy + 12;
+
+    const symbolColor = s.textColor;
+
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}">
+      <rect width="${sz}" height="${sz}" fill="#f0f0f0"/>
+      <!-- Outer white diamond -->
+      <polygon points="${outerPts}" fill="white" stroke="#555" stroke-width="3"/>
+      <!-- Main color fill -->
+      <polygon points="${innerPts}" fill="${s.color}"/>
+      <!-- Inner border line -->
+      <polygon points="${borderPts}" fill="none" stroke="${tc === '#fff' ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.4)'}" stroke-width="3"/>
+      <!-- Symbol -->
+      ${getSymbolSVG(s.class, symbolColor)}
+      <!-- UN number white box -->
+      <rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" fill="white" stroke="${tc === '#fff' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.2)'}" stroke-width="2"/>
+      <!-- UN number text -->
+      <text x="${cx}" y="${boxY + boxH/2 + 2}" font-size="36" font-weight="bold" font-family="Arial, sans-serif" text-anchor="middle" dominant-baseline="middle" fill="#111">${unNum}</text>
+      <!-- Class number bottom -->
+      <text x="${cx}" y="${cy + 140}" font-size="28" font-weight="bold" font-family="Arial, sans-serif" text-anchor="middle" dominant-baseline="middle" fill="${tc}">${s.class}</text>
+    </svg>`;
+  }
+
+  function loadSample(index) {
+    const s = SAMPLES[index];
+    document.getElementById('samplesDropdown').classList.remove('open');
+    currentSample = s;
+
+    // Show official DOT image as preview
+    document.getElementById('previewImg').src = s.img;
+    document.getElementById('previewWrap').classList.remove('hidden');
+    document.getElementById('analyzeBtn').disabled = false;
+    document.getElementById('resultArea').innerHTML = '';
+
+    // Load image into canvas to get base64 for API
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width || 200;
+      canvas.height = img.height || 200;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      try {
+        const dataUrl = canvas.toDataURL('image/png');
+        imageBase64 = dataUrl.split(',')[1];
+        imageMediaType = 'image/png';
+      } catch(e) {
+        // CORS blocked - use text mode via currentSample
+        imageBase64 = null;
+      }
+    };
+    img.onerror = () => { imageBase64 = null; };
+    img.src = s.img;
   }
 
   // Disclaimer
