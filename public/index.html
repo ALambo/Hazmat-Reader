@@ -969,38 +969,42 @@ Rules:
 
   // ── SAMPLES ──
   const SAMPLES = [
-    { name: 'Flammable Liquid',        un: 'UN1993', class: '3',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/DOT_hazmat_class_3.svg/200px-DOT_hazmat_class_3.svg.png' },
-    { name: 'Gasoline',                un: 'UN1203', class: '3',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/DOT_hazmat_class_3.svg/200px-DOT_hazmat_class_3.svg.png' },
-    { name: 'Aviation Fuel',           un: 'UN1863', class: '3',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/DOT_hazmat_class_3.svg/200px-DOT_hazmat_class_3.svg.png' },
-    { name: 'Diesel Fuel',             un: 'UN1202', class: '3',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/DOT_hazmat_class_3.svg/200px-DOT_hazmat_class_3.svg.png' },
-    { name: 'Flammable Gas',           un: 'UN1954', class: '2.1', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/DOT_hazmat_class_2.1.svg/200px-DOT_hazmat_class_2.1.svg.png' },
-    { name: 'Non-Flammable Gas',       un: 'UN1956', class: '2.2', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/DOT_hazmat_class_2.2.svg/200px-DOT_hazmat_class_2.2.svg.png' },
-    { name: 'Toxic Gas',               un: 'UN1017', class: '2.3', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/DOT_hazmat_class_2.3.svg/200px-DOT_hazmat_class_2.3.svg.png' },
-    { name: 'Explosives 1.1',          un: 'UN0004', class: '1',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/DOT_hazmat_class_1.svg/200px-DOT_hazmat_class_1.svg.png' },
-    { name: 'Flammable Solid',         un: 'UN1325', class: '4.1', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/DOT_hazmat_class_4.1.svg/200px-DOT_hazmat_class_4.1.svg.png' },
-    { name: 'Spontaneously Combustible', un: 'UN2845', class: '4.2', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/DOT_hazmat_class_4.2.svg/200px-DOT_hazmat_class_4.2.svg.png' },
-    { name: 'Dangerous When Wet',      un: 'UN3170', class: '4.3', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/DOT_hazmat_class_4.3.svg/200px-DOT_hazmat_class_4.3.svg.png' },
-    { name: 'Oxidizer',                un: 'UN1479', class: '5.1', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/DOT_hazmat_class_5.1.svg/200px-DOT_hazmat_class_5.1.svg.png' },
-    { name: 'Hydrogen Peroxide',       un: 'UN2014', class: '5.1', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/DOT_hazmat_class_5.1.svg/200px-DOT_hazmat_class_5.1.svg.png' },
-    { name: 'Poison / Toxic',          un: 'UN2810', class: '6.1', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/DOT_hazmat_class_6.1.svg/200px-DOT_hazmat_class_6.1.svg.png' },
-    { name: 'Infectious Substance',    un: 'UN2814', class: '6.2', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/DOT_hazmat_class_6.2.svg/200px-DOT_hazmat_class_6.2.svg.png' },
-    { name: 'Radioactive I',           un: 'UN2910', class: '7',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/DOT_hazmat_class_7.svg/200px-DOT_hazmat_class_7.svg.png' },
-    { name: 'Corrosive Liquid',        un: 'UN1760', class: '8',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/DOT_hazmat_class_8.svg/200px-DOT_hazmat_class_8.svg.png' },
-    { name: 'Sulfuric Acid',           un: 'UN1830', class: '8',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/DOT_hazmat_class_8.svg/200px-DOT_hazmat_class_8.svg.png' },
-    { name: 'Potassium Hydroxide',     un: 'UN1814', class: '8',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/DOT_hazmat_class_8.svg/200px-DOT_hazmat_class_8.svg.png' },
-    { name: 'Miscellaneous',           un: 'UN3082', class: '9',   img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/DOT_hazmat_class_9.svg/200px-DOT_hazmat_class_9.svg.png' },
+    { name: 'Flammable Liquid',          un: 'UN1993', class: '3',   color: '#cc2200', textColor: '#fff' },
+    { name: 'Gasoline',                  un: 'UN1203', class: '3',   color: '#cc2200', textColor: '#fff' },
+    { name: 'Aviation Fuel',             un: 'UN1863', class: '3',   color: '#cc2200', textColor: '#fff' },
+    { name: 'Diesel Fuel',               un: 'UN1202', class: '3',   color: '#cc2200', textColor: '#fff' },
+    { name: 'Flammable Gas',             un: 'UN1954', class: '2.1', color: '#cc2200', textColor: '#fff' },
+    { name: 'Non-Flammable Gas',         un: 'UN1956', class: '2.2', color: '#1a7a3c', textColor: '#fff' },
+    { name: 'Toxic Gas',                 un: 'UN1017', class: '2.3', color: '#ffffff', textColor: '#111' },
+    { name: 'Explosives 1.1',            un: 'UN0004', class: '1',   color: '#f5c400', textColor: '#000' },
+    { name: 'Flammable Solid',           un: 'UN1325', class: '4.1', color: '#ff4400', textColor: '#fff' },
+    { name: 'Spontaneously Combustible', un: 'UN2845', class: '4.2', color: '#ff4400', textColor: '#fff' },
+    { name: 'Dangerous When Wet',        un: 'UN3170', class: '4.3', color: '#1155cc', textColor: '#fff' },
+    { name: 'Oxidizer',                  un: 'UN1479', class: '5.1', color: '#f5c400', textColor: '#000' },
+    { name: 'Hydrogen Peroxide',         un: 'UN2014', class: '5.1', color: '#f5c400', textColor: '#000' },
+    { name: 'Poison / Toxic',            un: 'UN2810', class: '6.1', color: '#ffffff', textColor: '#111' },
+    { name: 'Infectious Substance',      un: 'UN2814', class: '6.2', color: '#ffffff', textColor: '#111' },
+    { name: 'Radioactive I',             un: 'UN2910', class: '7',   color: '#f5c400', textColor: '#000' },
+    { name: 'Corrosive Liquid',          un: 'UN1760', class: '8',   color: '#111111', textColor: '#fff' },
+    { name: 'Sulfuric Acid',             un: 'UN1830', class: '8',   color: '#111111', textColor: '#fff' },
+    { name: 'Potassium Hydroxide',       un: 'UN1814', class: '8',   color: '#111111', textColor: '#fff' },
+    { name: 'Miscellaneous',             un: 'UN3082', class: '9',   color: '#ffffff', textColor: '#111' },
   ];
 
   function buildSamplesDropdown() {
     const dd = document.getElementById('samplesDropdown');
-    dd.innerHTML = SAMPLES.map((s, i) => `
-      <div class="sample-item" onclick="loadSample(${i})">
-        <img src="${s.img}" style="width:36px;height:36px;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">
-        <div class="sample-info">
-          <div class="sample-name">${s.name}</div>
-          <div class="sample-un">${s.un} · CLASS ${s.class}</div>
-        </div>
-      </div>`).join('');
+    dd.innerHTML = SAMPLES.map((s, i) => {
+      const svg = buildPlacardSVG(s);
+      const svgUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      return `
+        <div class="sample-item" onclick="loadSample(${i})">
+          <img src="${svgUrl}" style="width:38px;height:38px;object-fit:contain;flex-shrink:0;">
+          <div class="sample-info">
+            <div class="sample-name">${s.name}</div>
+            <div class="sample-un">${s.un} · CLASS ${s.class}</div>
+          </div>
+        </div>`;
+    }).join('');
   }
   buildSamplesDropdown();
 
@@ -1137,35 +1141,15 @@ Rules:
     const s = SAMPLES[index];
     document.getElementById('samplesDropdown').classList.remove('open');
     currentSample = s;
+    imageBase64 = null;
 
-    // Show official DOT image as preview
-    document.getElementById('previewImg').src = s.img;
+    // Show SVG preview
+    const svgStr = buildPlacardSVG(s);
+    const svgUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+    document.getElementById('previewImg').src = svgUrl;
     document.getElementById('previewWrap').classList.remove('hidden');
     document.getElementById('analyzeBtn').disabled = false;
     document.getElementById('resultArea').innerHTML = '';
-
-    // Load image into canvas to get base64 for API
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width || 200;
-      canvas.height = img.height || 200;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-      try {
-        const dataUrl = canvas.toDataURL('image/png');
-        imageBase64 = dataUrl.split(',')[1];
-        imageMediaType = 'image/png';
-      } catch(e) {
-        // CORS blocked - use text mode via currentSample
-        imageBase64 = null;
-      }
-    };
-    img.onerror = () => { imageBase64 = null; };
-    img.src = s.img;
   }
 
   // Disclaimer
