@@ -213,6 +213,171 @@
 
   .hidden { display: none !important; }
 
+  /* ── ABOUT SCREEN ── */
+  #aboutScreen {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 997;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  #aboutScreen.open {
+    display: flex;
+  }
+  .about-panel {
+    background: var(--surface);
+    width: 100%;
+    max-width: 680px;
+    border-radius: 16px 16px 0 0;
+    border-top: 1px solid var(--border);
+    padding: 0 0 40px 0;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  .about-handle {
+    width: 40px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 12px auto 20px;
+  }
+  .about-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .about-logo {
+    width: 48px; height: 48px;
+    background: var(--accent);
+    transform: rotate(45deg);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .about-logo span {
+    transform: rotate(-45deg);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 16px; color: #000;
+  }
+  .about-app-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+  .about-version {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-top: 3px;
+  }
+  .about-close {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .about-close:hover { border-color: var(--danger); color: var(--danger); }
+  .about-section {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .about-section:last-child { border-bottom: none; }
+  .about-section-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .about-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #b0bcbc;
+  }
+  .about-how-item {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 14px;
+    align-items: flex-start;
+  }
+  .about-how-item:last-child { margin-bottom: 0; }
+  .about-step-num {
+    width: 28px; height: 28px;
+    background: rgba(245,168,0,0.15);
+    border: 1px solid rgba(245,168,0,0.4);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .about-step-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #b0bcbc;
+  }
+  .about-step-text strong { color: var(--text); }
+  .about-contact-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    width: 100%;
+  }
+  .about-contact-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .about-footer-text {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    padding: 0 24px;
+    line-height: 1.6;
+  }
+  /* About trigger button in header */
+  .about-trigger {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .about-trigger:hover { border-color: var(--accent); color: var(--accent); }
+
   /* ── SAMPLES DROPDOWN ── */
   .upload-zone-top {
     display: flex;
@@ -300,10 +465,10 @@
   .tabs-wrap::-webkit-scrollbar { display: none; }
   .tab-btn {
     flex-shrink: 0;
-    padding: 10px 14px;
+    padding: 12px 16px;
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 1.5px;
+    font-size: 13px;
+    letter-spacing: 1px;
     color: var(--muted);
     background: transparent;
     border: none;
@@ -636,7 +801,64 @@
     <h1>What's That HAZMAT</h1>
     <p>DOT PLACARD IDENTIFIER · HAZMAT REFERENCE</p>
   </div>
+  <button class="about-trigger" onclick="document.getElementById('aboutScreen').classList.add('open')">ℹ ABOUT</button>
 </header>
+
+<!-- ABOUT SCREEN -->
+<div id="aboutScreen" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="about-panel">
+    <div class="about-handle"></div>
+    <div class="about-header">
+      <div class="about-logo"><span>WH</span></div>
+      <div>
+        <div class="about-app-name">What's That HAZMAT</div>
+        <div class="about-version">VERSION 1.0.0 · DOT PLACARD IDENTIFIER</div>
+      </div>
+      <button class="about-close" onclick="document.getElementById('aboutScreen').classList.remove('open')">✕</button>
+    </div>
+
+    <div class="about-section">
+      <div class="about-section-title">About This App</div>
+      <div class="about-text">What's That HAZMAT uses AI to instantly identify and explain DOT HAZMAT placards — the diamond-shaped warning signs on trucks and rail cars. Point your camera at any placard to get plain-English information about the hazard, UN number, danger level, and emergency guidance.</div>
+    </div>
+
+    <div class="about-section">
+      <div class="about-section-title">How To Use</div>
+      <div class="about-how-item">
+        <div class="about-step-num">1</div>
+        <div class="about-step-text"><strong>Take a photo</strong> of any HAZMAT placard using your camera or upload an existing photo.</div>
+      </div>
+      <div class="about-how-item">
+        <div class="about-step-num">2</div>
+        <div class="about-step-text"><strong>Tap Analyze Placard</strong> to send the image to our AI for identification.</div>
+      </div>
+      <div class="about-how-item">
+        <div class="about-step-num">3</div>
+        <div class="about-step-text"><strong>Review the results</strong> — hazard class, UN number, danger level, common materials, and emergency actions.</div>
+      </div>
+      <div class="about-how-item">
+        <div class="about-step-num">4</div>
+        <div class="about-step-text"><strong>Browse the tabs</strong> for news, supplies needed, and premium features.</div>
+      </div>
+    </div>
+
+    <div class="about-section">
+      <div class="about-section-title">Contact & Feedback</div>
+      <a class="about-contact-btn" href="mailto:whatsthathazmat@gmail.com">
+        <span>✉</span> whatsthathazmat@gmail.com
+      </a>
+    </div>
+
+    <div class="about-section">
+      <div class="about-section-title">Disclaimer</div>
+      <div class="about-text">This app is for reference purposes only. Always call 911 in an emergency. Do not rely solely on this app for life-safety decisions. AI interpretation may not be 100% accurate — always verify with official sources and follow your organization's HAZMAT protocols.</div>
+    </div>
+
+    <div class="about-section">
+      <div class="about-footer-text">© 2026 What's That HAZMAT · All rights reserved<br>For emergency response, always follow official DOT and OSHA guidelines.</div>
+    </div>
+  </div>
+</div>
 
 <main>
   <div class="upload-zone" id="uploadZone">
