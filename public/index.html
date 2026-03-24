@@ -1066,7 +1066,7 @@
   ⚠ FOR REFERENCE ONLY · IN AN EMERGENCY CALL 911 · DO NOT RELY SOLELY ON WHAT'S THAT HAZMAT
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
   // ── PIN LOGIC ──
   const CORRECT_PIN  = "1525";
   const MAX_ATTEMPTS = 5;
@@ -1133,27 +1133,35 @@
   let currentSample = null;
   let imageMediaType = 'image/jpeg';
 
-  const fileInput   = document.getElementById('fileInput');
-  const cameraInput = document.getElementById('cameraInput');
-  const uploadZone  = document.getElementById('uploadZone');
-  const previewWrap = document.getElementById('previewWrap');
-  const previewImg  = document.getElementById('previewImg');
-  const clearBtn    = document.getElementById('clearBtn');
-  const analyzeBtn  = document.getElementById('analyzeBtn');
-  const resultArea  = document.getElementById('resultArea');
+  let fileInput, cameraInput, uploadZone, previewWrap, previewImg, clearBtn, analyzeBtn, resultArea;
 
-  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.style.borderColor = 'var(--accent)'; });
-  uploadZone.addEventListener('dragleave', () => uploadZone.style.borderColor = '');
-  uploadZone.addEventListener('drop', e => {
-    e.preventDefault(); uploadZone.style.borderColor = '';
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) loadImage(file);
+  document.addEventListener('DOMContentLoaded', () => {
+    fileInput   = document.getElementById('fileInput');
+    cameraInput = document.getElementById('cameraInput');
+    uploadZone  = document.getElementById('uploadZone');
+    previewWrap = document.getElementById('previewWrap');
+    previewImg  = document.getElementById('previewImg');
+    clearBtn    = document.getElementById('clearBtn');
+    analyzeBtn  = document.getElementById('analyzeBtn');
+    resultArea  = document.getElementById('resultArea');
+
+    if (uploadZone) {
+      uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.style.borderColor = 'var(--accent)'; });
+      uploadZone.addEventListener('dragleave', () => uploadZone.style.borderColor = '');
+      uploadZone.addEventListener('drop', e => {
+        e.preventDefault(); uploadZone.style.borderColor = '';
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) loadImage(file);
+      });
+    }
+
+    if (fileInput)   fileInput.addEventListener('change',   e => { if (e.target.files[0]) loadImage(e.target.files[0]); });
+    if (cameraInput) cameraInput.addEventListener('change', e => { if (e.target.files[0]) loadImage(e.target.files[0]); });
+    if (clearBtn)    clearBtn.addEventListener('click',     clearImage);
+    if (analyzeBtn)  analyzeBtn.addEventListener('click',   analyzePlacard);
+
+    buildSamplesDropdown();
   });
-
-  fileInput.addEventListener('change',   e => { if (e.target.files[0]) loadImage(e.target.files[0]); });
-  cameraInput.addEventListener('change', e => { if (e.target.files[0]) loadImage(e.target.files[0]); });
-  clearBtn.addEventListener('click',     clearImage);
-  analyzeBtn.addEventListener('click',   analyzePlacard);
 
   function loadImage(file) {
     imageMediaType = 'image/jpeg';
@@ -1398,8 +1406,6 @@ Rules:
         </div>`;
     }).join('');
   }
-  buildSamplesDropdown();
-
   function toggleSamples() {
     const dd = document.getElementById('samplesDropdown');
     dd.classList.toggle('open');
