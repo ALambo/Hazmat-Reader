@@ -102,7 +102,7 @@
 
   .tabs-wrap { display:flex; border-bottom:1px solid var(--border); background:var(--surface); overflow-x:auto; scrollbar-width:none; }
   .tabs-wrap::-webkit-scrollbar { display:none; }
-  .tab-btn { flex-shrink:0; padding:12px 16px; font-family:'IBM Plex Mono',monospace; font-size:13px; letter-spacing:1px; color:var(--muted); background:transparent; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+  .tab-btn { flex-shrink:0; padding:10px 12px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.5px; color:var(--muted); background:transparent; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
   .tab-btn:hover { color:var(--text); }
   .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
   .tab-btn.pro-tab { color:#6b5a2a; }
@@ -357,9 +357,9 @@
     <h1>What's That HAZMAT</h1>
     <p>DOT PLACARD IDENTIFIER · HAZMAT REFERENCE</p>
   </div>
-  <div style="display:flex;gap:8px;margin-left:auto;">
-    <button class="about-trigger" onclick="openHistoryGated()">&#128338; HISTORY <span class="pro-badge" id="proHeaderBadge">PRO</span></button>
+  <div style="display:flex;flex-direction:column;gap:5px;margin-left:auto;align-items:flex-end;">
     <button class="about-trigger" onclick="document.getElementById('aboutScreen').classList.add('open')">&#8505; ABOUT</button>
+    <button class="about-trigger" onclick="openHistoryGated()">&#128338; HISTORY <span class="pro-badge" id="proHeaderBadge">PRO</span></button>
   </div>
 </header>
 
@@ -526,7 +526,7 @@ function analyzePlacard() {
   var mi = 0;
   var msgTimer = setInterval(function() { mi = (mi+1) % msgs.length; var el = document.getElementById('loadingText'); if(el) el.textContent = msgs[mi]; }, 600);
 
-  var prompt = 'You are a DOT HAZMAT placard expert. Look carefully and identify ALL HAZMAT placards visible.\n\nReturn ONLY raw JSON, no markdown, no backticks:\n{"detected":true,"placards":[{"hazardClass":"Class 3","hazardType":"Flammable Liquid","unNumber":"UN1993","commonExample":"Diesel","emergencyActions":"2-3 sentences on accident response","fullExplanation":"3-4 plain English sentences for non-expert","dangerLevel":"LOW or MODERATE or HIGH or EXTREME","placard_color":"red","symbol_described":"flame","news":[{"date":"2024","title":"Headline","summary":"2 sentence summary"}],"supplies":[{"category":"PPE","name":"Item","description":"Why needed"}]}]}\n\nRules: always use placards array, dangerLevel must be LOW/MODERATE/HIGH/EXTREME, include 2-3 news items and 3-4 supplies. If no placard: {"detected":false,"reason":"description"}';
+  var prompt = 'You are a DOT HAZMAT placard expert. Look carefully and identify ALL HAZMAT placards visible.\n\nReturn ONLY raw JSON, no markdown, no backticks:\n{"detected":true,"placards":[{"hazardClass":"Class 3","hazardType":"Flammable Liquid","unNumber":"UN1993","commonExample":"Diesel","emergencyActions":"2-3 sentences on accident response","fullExplanation":"3-4 plain English sentences for non-expert","dangerLevel":"LOW or MODERATE or HIGH or EXTREME","placard_color":"red","symbol_described":"flame","news":[{"date":"2024","title":"Regulatory Update Headline","summary":"2 sentence summary including agency name"},{"date":"2023","title":"Incident or Regulatory Item","summary":"2 sentence summary"}],"supplies":[{"category":"PPE","name":"Item","description":"Why needed"}],"history":[{"year":"1984","title":"Notable Incident Title","location":"City, State","description":"2-3 sentences on what happened and lessons learned","casualties":"optional e.g. 3 fatalities"}]}]}\n\nRules:\n- Always use the placards array\n- dangerLevel must be exactly LOW, MODERATE, HIGH, or EXTREME\n- news: include 5-6 items mixing real recent incidents AND regulatory updates from DOT, OSHA, EPA, or state agencies. Label regulatory items with agency name.\n- supplies: 3-4 key supplies needed\n- history: 3-4 real notable accidents or spills involving this specific material. Each needs year, title, location, description, and optional casualties.\n- If no placard visible: {"detected":false,"reason":"description"}';
 
   var messageContent = currentSample
     ? [{ type: 'text', text: 'DOT HAZMAT placard details:\nUN: ' + currentSample.un + '\nClass: ' + currentSample.class + '\nMaterial: ' + currentSample.name + '\n\n' + prompt }]
@@ -617,12 +617,12 @@ function buildCard(p, index, total) {
   html += '<div class="result-header"><div class="result-status-dot" style="background:'+dc+';box-shadow:0 0 8px '+dc+'"></div><div class="result-header-label">'+(total>1?'PLACARD '+(index+1)+' OF '+total:'PLACARD IDENTIFIED')+'</div>'+(p.hazardClass?'<div class="result-class-badge">'+p.hazardClass+'</div>':'')+' </div>';
   html += '<div class="tabs-wrap">';
   html += '<button class="tab-btn active" onclick="switchTab(\''+id+'\',\'overview\',this)">OVERVIEW</button>';
-  html += '<button class="tab-btn" onclick="switchTab(\''+id+'\',\'news\',this)">&#128240; NEWS</button>';
-  html += '<button class="tab-btn" onclick="switchTab(\''+id+'\',\'supplies\',this)">&#128722; SUPPLIES</button>';
-  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'history\',this)">&#128165; HISTORY &#11088;</button>';
-  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'erg\',this)">&#128216; ERG &#11088;</button>';
-  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'nearby\',this)">&#128205; NEARBY &#11088;</button>';
-  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'comply\',this)">&#128203; COMPLY &#11088;</button>';
+  html += '<button class="tab-btn" onclick="switchTab(\''+id+'\',\'news\',this)">NEWS</button>';
+  html += '<button class="tab-btn" onclick="switchTab(\''+id+'\',\'supplies\',this)">SUPPLIES</button>';
+  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'history\',this)">HISTORY &#11088;</button>';
+  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'erg\',this)">ERG &#11088;</button>';
+  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'nearby\',this)">NEARBY &#11088;</button>';
+  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'comply\',this)">COMPLY &#11088;</button>';
   html += '</div>';
   html += '<div id="'+id+'-overview" class="tab-panel active">';
   html += '<div class="result-main-title">'+(p.hazardType||'Hazardous Material')+'</div>';
@@ -649,9 +649,21 @@ function buildCard(p, index, total) {
   html += '</div>';
   html += '<div id="'+id+'-news" class="tab-panel">'+newsHtml+'</div>';
   html += '<div id="'+id+'-supplies" class="tab-panel">'+supHtml+'</div>';
-  var histHtml = isProUser
-    ? '<div style="color:var(--muted);font-size:13px;padding:12px 0;">Historic accident data will load here in full Pro release.</div>'
-    : proLock('Historic Accidents',['Notable spills & disasters','Lessons learned','Casualty & damage reports']);
+  var histHtml;
+  if (!isProUser) {
+    histHtml = proLock('Historic Accidents',['Notable spills & disasters','Lessons learned','Casualty & damage reports']);
+  } else if (p.history && p.history.length) {
+    histHtml = p.history.map(function(h){
+      return '<div class="news-item">'
+        + '<div class="news-date" style="color:var(--danger);">'+h.year+' &mdash; '+h.location+'</div>'
+        + '<div class="news-title">'+h.title+'</div>'
+        + '<div class="news-summary">'+h.description+'</div>'
+        + (h.casualties ? '<div style="font-size:10px;color:var(--muted);margin-top:4px;">'+h.casualties+'</div>' : '')
+        + '</div>';
+    }).join('');
+  } else {
+    histHtml = '<div style="color:var(--muted);font-size:13px;padding:12px 0;">No historical incidents found for this material.</div>';
+  }
   html += '<div id="'+id+'-history" class="tab-panel">'+histHtml+'</div>';
   var ergHtml = isProUser
     ? '<div style="color:var(--muted);font-size:13px;padding:12px 0;">ERG data will load here in full Pro release.</div>'
