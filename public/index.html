@@ -354,12 +354,12 @@
 <header>
   <div class="logo-diamond"><span>WTH</span></div>
   <div class="header-text">
-    <h1>What's That HAZMAT</h1>
+    <h1>What's That HAZMAT <span class="pro-badge" id="proHeaderBadge" onclick="openProScreen()" style="cursor:pointer;vertical-align:middle;">PRO</span></h1>
     <p>DOT PLACARD IDENTIFIER · HAZMAT REFERENCE</p>
   </div>
-  <div style="display:flex;flex-direction:column;gap:5px;margin-left:auto;align-items:flex-end;">
+  <div style="display:flex;gap:8px;margin-left:auto;align-items:center;">
+    <button class="about-trigger" onclick="openHistoryGated()">&#128338; HISTORY</button>
     <button class="about-trigger" onclick="document.getElementById('aboutScreen').classList.add('open')">&#8505; ABOUT</button>
-    <button class="about-trigger" onclick="openHistoryGated()">&#128338; HISTORY <span class="pro-badge" id="proHeaderBadge">PRO</span></button>
   </div>
 </header>
 
@@ -389,7 +389,82 @@
   </div>
 
   <button class="analyze-btn" id="analyzeBtn" disabled>&#128269; ANALYZE PLACARD</button>
-  <div id="resultArea"></div>
+  <div id="resultArea">
+    <div class="result-card" id="readyCard">
+      <div class="tabs-wrap" id="readyTabsWrap">
+        <button class="tab-btn active" onclick="switchReadyTab('overview',this)">OVERVIEW</button>
+        <button class="tab-btn" onclick="switchReadyTab('news',this)">NEWS</button>
+        <button class="tab-btn pro-tab" onclick="switchReadyTab('history',this)">HISTORY</button>
+        <button class="tab-btn pro-tab" onclick="switchReadyTab('nearby',this)">NEARBY</button>
+        <button class="tab-btn" onclick="switchReadyTab('supplies',this)">SUPPLIES</button>
+        <button class="tab-btn pro-tab" onclick="switchReadyTab('erg',this)">ERG</button>
+        <button class="tab-btn pro-tab" onclick="switchReadyTab('comply',this)">COMPLY</button>
+      </div>
+      <div id="readyTab-overview" class="tab-panel active">
+        <div style="text-align:center;padding:32px 16px;">
+          <div style="width:48px;height:48px;background:rgba(245,168,0,0.1);border:2px solid rgba(245,168,0,0.3);transform:rotate(45deg);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;">
+            <span style="transform:rotate(-45deg);font-size:20px;">&#128269;</span>
+          </div>
+          <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;letter-spacing:2px;color:var(--text);margin-bottom:8px;">READY TO SCAN</div>
+          <div style="font-size:14px;color:var(--muted);line-height:1.7;max-width:320px;margin:0 auto;">Upload a photo or use your camera to photograph a HAZMAT placard. The AI will identify the hazard, UN number, danger level, and emergency actions.</div>
+          <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:320px;margin:20px auto 0;">
+            <div style="background:var(--bg);border:1px solid var(--border);padding:10px;border-radius:2px;text-align:center;">
+              <div style="font-size:18px;margin-bottom:4px;">&#128247;</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;">TAKE PHOTO</div>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);padding:10px;border-radius:2px;text-align:center;">
+              <div style="font-size:18px;margin-bottom:4px;">&#128194;</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;">UPLOAD IMAGE</div>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);padding:10px;border-radius:2px;text-align:center;">
+              <div style="font-size:18px;margin-bottom:4px;">&#9733;</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;">TRY SAMPLES</div>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);padding:10px;border-radius:2px;text-align:center;">
+              <div style="font-size:18px;margin-bottom:4px;">&#128681;</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;">GET RESULTS</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="readyTab-news" class="tab-panel">
+        <div style="padding:20px 0;text-align:center;color:var(--muted);font-size:14px;line-height:1.7;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">NEWS &amp; REGULATORY UPDATES</div>
+          Scan a placard to see the latest news, incidents, and regulatory updates specific to that hazardous material.
+        </div>
+      </div>
+      <div id="readyTab-history" class="tab-panel">
+        <div style="padding:20px 0;text-align:center;color:var(--muted);font-size:14px;line-height:1.7;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">HISTORIC ACCIDENTS</div>
+          Scan a placard to see notable historical incidents and accidents involving that specific material.
+        </div>
+      </div>
+      <div id="readyTab-nearby" class="tab-panel">
+        <div style="padding:20px 0;text-align:center;color:var(--muted);font-size:14px;line-height:1.7;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">NEARBY FACILITIES</div>
+          Scan a placard to find nearby hospitals, fire stations, and HAZMAT response teams in your area.
+        </div>
+      </div>
+      <div id="readyTab-supplies" class="tab-panel">
+        <div style="padding:20px 0;text-align:center;color:var(--muted);font-size:14px;line-height:1.7;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">REQUIRED SUPPLIES</div>
+          Scan a placard to see the PPE, containment equipment, and safety supplies needed to handle that hazmat safely.
+        </div>
+      </div>
+      <div id="readyTab-erg" class="tab-panel">
+        <div style="padding:20px 0;text-align:center;color:var(--muted);font-size:14px;line-height:1.7;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">EMERGENCY RESPONSE GUIDE</div>
+          Scan a placard to access the full DOT Emergency Response Guidebook data for that UN number.
+        </div>
+      </div>
+      <div id="readyTab-comply" class="tab-panel">
+        <div style="padding:20px 0;text-align:center;color:var(--muted);font-size:14px;line-height:1.7;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">REGULATORY COMPLIANCE</div>
+          Scan a placard to see DOT, OSHA, and EPA compliance requirements for transporting and handling that material.
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
 
 <div class="warning-strip">&#9888; FOR REFERENCE ONLY &middot; IN AN EMERGENCY CALL 911 &middot; DO NOT RELY SOLELY ON THIS APP</div>
@@ -618,11 +693,11 @@ function buildCard(p, index, total) {
   html += '<div class="tabs-wrap">';
   html += '<button class="tab-btn active" onclick="switchTab(\''+id+'\',\'overview\',this)">OVERVIEW</button>';
   html += '<button class="tab-btn" onclick="switchTab(\''+id+'\',\'news\',this)">NEWS</button>';
+  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'history\',this)">HISTORY</button>';
+  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'nearby\',this)">NEARBY</button>';
   html += '<button class="tab-btn" onclick="switchTab(\''+id+'\',\'supplies\',this)">SUPPLIES</button>';
-  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'history\',this)">HISTORY &#11088;</button>';
-  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'erg\',this)">ERG &#11088;</button>';
-  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'nearby\',this)">NEARBY &#11088;</button>';
-  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'comply\',this)">COMPLY &#11088;</button>';
+  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'erg\',this)">ERG</button>';
+  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'comply\',this)">COMPLY</button>';
   html += '</div>';
   html += '<div id="'+id+'-overview" class="tab-panel active">';
   html += '<div class="result-main-title">'+(p.hazardType||'Hazardous Material')+'</div>';
@@ -969,6 +1044,20 @@ function loadNearby(btn) {
   });
 }
 
+
+function switchReadyTab(tabName, btn) {
+  var wrap = document.getElementById('readyTabsWrap');
+  if (!wrap) return;
+  wrap.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('[id^="readyTab-"]').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  var panel = document.getElementById('readyTab-' + tabName);
+  if (panel) panel.classList.add('active');
+  // Gate pro tabs
+  if (['history','nearby','erg','comply'].indexOf(tabName) >= 0 && !isProUser) {
+    panel.innerHTML = '<div style="padding:20px;">' + proLock(tabName.charAt(0).toUpperCase()+tabName.slice(1), ['Unlock with Pro subscription']) + '</div>';
+  }
+}
 
 buildSamplesDropdown();
 checkProStatus();
