@@ -172,6 +172,41 @@
   .warning-strip { width:100%; max-width:680px; padding:12px 24px; margin-top:8px; background:rgba(224,60,60,0.07); border-top:1px solid rgba(224,60,60,0.2); font-family:'IBM Plex Mono',monospace; font-size:11px; color:#7a5050; letter-spacing:0.5px; text-align:center; }
   .hidden { display:none !important; }
 
+  /* ── PRO UPGRADE SCREEN ── */
+  #proScreen { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:998; display:none; align-items:center; justify-content:center; padding:24px; }
+  #proScreen.open { display:flex; }
+  .pro-modal { background:var(--surface); width:100%; max-width:440px; border-radius:16px; border:1px solid rgba(245,168,0,0.3); overflow:hidden; }
+  .pro-modal-header { background:var(--bg); padding:28px 24px 20px; text-align:center; border-bottom:1px solid var(--border); }
+  .pro-modal-diamond { width:52px; height:52px; background:var(--accent); transform:rotate(45deg); display:inline-flex; align-items:center; justify-content:center; margin-bottom:20px; }
+  .pro-modal-diamond span { transform:rotate(-45deg); font-family:'Rajdhani',sans-serif; font-weight:700; font-size:16px; color:#000; }
+  .pro-modal-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:26px; letter-spacing:2px; color:var(--accent); margin-bottom:4px; }
+  .pro-modal-price { font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:1px; color:var(--muted); }
+  .pro-modal-features { padding:20px 24px; display:flex; flex-direction:column; gap:10px; border-bottom:1px solid var(--border); }
+  .pro-modal-feature { display:flex; align-items:center; gap:12px; font-size:14px; color:#b0bcbc; }
+  .pro-modal-feature span { color:var(--accent); font-size:16px; flex-shrink:0; }
+  .pro-modal-actions { padding:20px 24px; display:flex; flex-direction:column; gap:10px; }
+  .pro-subscribe-btn { width:100%; padding:14px; background:var(--accent); color:#000; border:none; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:18px; letter-spacing:2px; cursor:pointer; border-radius:4px; transition:all 0.2s; }
+  .pro-subscribe-btn:hover { background:#ffc020; }
+  .pro-code-row { display:flex; gap:8px; }
+  .pro-code-input { flex:1; padding:10px 12px; background:var(--bg); border:1px solid var(--border); border-radius:4px; color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:13px; letter-spacing:2px; outline:none; }
+  .pro-code-input:focus { border-color:var(--accent); }
+  .pro-code-input::placeholder { color:var(--muted); font-size:11px; }
+  .pro-code-btn { padding:10px 16px; background:transparent; border:1px solid var(--border); color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1px; cursor:pointer; border-radius:4px; transition:all 0.2s; white-space:nowrap; }
+  .pro-code-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .pro-dismiss-btn { width:100%; padding:10px; background:transparent; border:none; color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1px; cursor:pointer; }
+  .pro-code-msg { font-family:'IBM Plex Mono',monospace; font-size:11px; text-align:center; min-height:16px; }
+
+  /* News blur effect */
+  .news-blur-wrap { position:relative; }
+  .news-blur-content { filter:blur(4px); user-select:none; pointer-events:none; opacity:0.6; }
+  .news-blur-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+  .news-blur-badge { background:rgba(245,168,0,0.15); border:1px solid rgba(245,168,0,0.4); color:var(--accent); font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; padding:4px 12px; border-radius:2px; cursor:pointer; }
+  .news-blur-badge:hover { background:rgba(245,168,0,0.25); }
+
+  /* Pro badge in header */
+  .pro-badge { background:rgba(245,168,0,0.15); border:1px solid rgba(245,168,0,0.4); color:var(--accent); font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1px; padding:2px 6px; border-radius:2px; margin-left:6px; vertical-align:middle; }
+  .pro-active-badge { background:rgba(46,204,113,0.15); border:1px solid rgba(46,204,113,0.4); color:#2ecc71; }
+
   #historyScreen { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:997; display:none; align-items:flex-end; justify-content:center; }
   #historyScreen.open { display:flex; }
   .history-panel { background:var(--surface); width:100%; max-width:680px; border-radius:16px 16px 0 0; border-top:1px solid var(--border); max-height:85vh; overflow-y:auto; animation:slideUp 0.3s ease; }
@@ -240,6 +275,34 @@
   <button class="disc-agree-btn" id="disclaimerAgreeBtn">I UNDERSTAND</button>
 </div>
 
+<div id="proScreen" onclick="if(event.target===this)closeProScreen()">
+  <div class="pro-modal">
+    <div class="pro-modal-header">
+      <div class="pro-modal-diamond"><span>PRO</span></div>
+      <div class="pro-modal-title">UPGRADE TO PRO</div>
+      <div class="pro-modal-price">$4.99 / YEAR &middot; CANCEL ANYTIME</div>
+    </div>
+    <div class="pro-modal-features">
+      <div class="pro-modal-feature"><span>&#128165;</span> Historic accidents &amp; notable incidents</div>
+      <div class="pro-modal-feature"><span>&#128216;</span> Full ERG Emergency Response Guidebook data</div>
+      <div class="pro-modal-feature"><span>&#128205;</span> Nearby hospitals, fire stations &amp; HAZMAT teams</div>
+      <div class="pro-modal-feature"><span>&#128203;</span> DOT/OSHA regulatory compliance info</div>
+      <div class="pro-modal-feature"><span>&#128680;</span> One-tap incident reporting</div>
+      <div class="pro-modal-feature"><span>&#127891;</span> HAZMAT training &amp; quiz mode</div>
+      <div class="pro-modal-feature"><span>&#128338;</span> Full scan history (25 scans)</div>
+    </div>
+    <div class="pro-modal-actions">
+      <button class="pro-subscribe-btn" onclick="handleSubscribe()">SUBSCRIBE &mdash; $4.99/YEAR</button>
+      <div class="pro-code-row">
+        <input class="pro-code-input" id="proCodeInput" type="text" placeholder="HAVE AN UNLOCK CODE?">
+        <button class="pro-code-btn" onclick="redeemCode()">REDEEM</button>
+      </div>
+      <div class="pro-code-msg" id="proCodeMsg"></div>
+      <button class="pro-dismiss-btn" onclick="closeProScreen()">Maybe later</button>
+    </div>
+  </div>
+</div>
+
 <div id="historyScreen" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="history-panel">
     <div class="history-panel-header">
@@ -295,7 +358,7 @@
     <p>DOT PLACARD IDENTIFIER · HAZMAT REFERENCE</p>
   </div>
   <div style="display:flex;gap:8px;margin-left:auto;">
-    <button class="about-trigger" onclick="openHistory()">&#128338; HISTORY</button>
+    <button class="about-trigger" onclick="openHistoryGated()">&#128338; HISTORY <span class="pro-badge" id="proHeaderBadge">PRO</span></button>
     <button class="about-trigger" onclick="document.getElementById('aboutScreen').classList.add('open')">&#8505; ABOUT</button>
   </div>
 </header>
@@ -532,7 +595,23 @@ function switchTab(cardId, tabName, btn) {
 function buildCard(p, index, total) {
   var dc = dangerColor(p.dangerLevel);
   var id = 'card' + index;
-  var newsHtml = (p.news && p.news.length) ? p.news.map(function(n){ return '<div class="news-item"><div class="news-date">'+n.date+'</div><div class="news-title">'+n.title+'</div><div class="news-summary">'+n.summary+'</div></div>'; }).join('') : '<div style="color:var(--muted);font-size:13px;padding:12px 0;">No recent news found.</div>';
+  var newsHtml;
+  if (p.news && p.news.length) {
+    if (isProUser) {
+      newsHtml = p.news.map(function(n){ return '<div class="news-item"><div class="news-date">'+n.date+'</div><div class="news-title">'+n.title+'</div><div class="news-summary">'+n.summary+'</div></div>'; }).join('');
+    } else {
+      newsHtml = p.news.map(function(n){
+        return '<div class="news-item news-blur-wrap">'
+          + '<div class="news-date">'+n.date+'</div>'
+          + '<div class="news-title">'+n.title+'</div>'
+          + '<div class="news-blur-content"><div class="news-summary">'+n.summary+'</div></div>'
+          + '<div class="news-blur-overlay"><span class="news-blur-badge" onclick="openProScreen()">&#11088; PRO &mdash; UPGRADE TO READ</span></div>'
+          + '</div>';
+      }).join('');
+    }
+  } else {
+    newsHtml = '<div style="color:var(--muted);font-size:13px;padding:12px 0;">No recent news found.</div>';
+  }
   var supHtml = (p.supplies && p.supplies.length) ? p.supplies.map(function(s){ return '<div class="supply-item"><div class="supply-cat">'+s.category+'</div><div><div class="supply-name">'+s.name+'</div><div class="supply-desc">'+s.description+'</div></div></div>'; }).join('') : '<div style="color:var(--muted);font-size:13px;padding:12px 0;">No supply data found.</div>';
   var html = '<div class="result-card" style="'+(index<total-1?'margin-bottom:12px;':'')+'">';
   html += '<div class="result-header"><div class="result-status-dot" style="background:'+dc+';box-shadow:0 0 8px '+dc+'"></div><div class="result-header-label">'+(total>1?'PLACARD '+(index+1)+' OF '+total:'PLACARD IDENTIFIED')+'</div>'+(p.hazardClass?'<div class="result-class-badge">'+p.hazardClass+'</div>':'')+' </div>';
@@ -554,14 +633,38 @@ function buildCard(p, index, total) {
   if(p.dangerLevel) html += '<div class="info-cell"><div class="info-cell-label">DANGER LEVEL</div><div class="info-cell-value" style="color:'+dc+'">'+p.dangerLevel+'</div></div>';
   if(p.placard_color) html += '<div class="info-cell"><div class="info-cell-label">PLACARD COLOR</div><div class="info-cell-value">'+p.placard_color+'</div></div>';
   html += '</div>';
-  if(p.emergencyActions) html += '<div style="margin-top:16px;padding:14px;background:rgba(224,60,60,0.07);border:1px solid rgba(224,60,60,0.2);border-radius:2px;"><div style="font-family:\'IBM Plex Mono\',monospace;font-size:13px;letter-spacing:1px;color:#a05050;margin-bottom:9px;font-weight:600;">&#128680; IF THERE IS AN ACCIDENT</div><div style="font-size:17px;color:#c8a8a8;line-height:1.7;">'+p.emergencyActions+'</div></div>';
+  if(p.emergencyActions) {
+    var emergStyle = 'margin-top:16px;padding:14px;background:rgba(224,60,60,0.07);border:1px solid rgba(224,60,60,0.2);border-radius:2px;';
+    var emergLblStyle = 'font-size:13px;letter-spacing:1px;color:#a05050;margin-bottom:9px;font-weight:600;';
+    var emergTxtStyle = 'font-size:17px;color:#c8a8a8;line-height:1.7;';
+    var reportBtnStyle = 'margin-top:12px;width:100%;padding:10px;background:rgba(224,60,60,0.15);border:1px solid rgba(224,60,60,0.4);color:#e03c3c;font-size:11px;letter-spacing:1.5px;cursor:pointer;border-radius:2px;';
+    html += '<div style="'+emergStyle+'">'
+      + '<div style="'+emergLblStyle+'">&#128680; IF THERE IS AN ACCIDENT</div>'
+      + '<div style="'+emergTxtStyle+'">'+p.emergencyActions+'</div>';
+    if (isProUser) {
+      html += '<button onclick="reportIncident(this.dataset.ht,this.dataset.un)" data-ht="'+p.hazardType+'" data-un="'+p.unNumber+'" style="'+reportBtnStyle+'">&#128680; REPORT INCIDENT</button>';
+    }
+    html += '</div>';
+  }
   html += '</div>';
   html += '<div id="'+id+'-news" class="tab-panel">'+newsHtml+'</div>';
   html += '<div id="'+id+'-supplies" class="tab-panel">'+supHtml+'</div>';
-  html += '<div id="'+id+'-history" class="tab-panel">'+proLock('Historic Accidents',['Notable spills & disasters','Lessons learned','Casualty & damage reports'])+'</div>';
-  html += '<div id="'+id+'-erg" class="tab-panel">'+proLock('ERG Data',['Full Emergency Response Guidebook','Isolation distances','Protective action zones'])+'</div>';
-  html += '<div id="'+id+'-nearby" class="tab-panel">'+proLock('Nearby Facilities',['Hospitals & trauma centers','Fire stations & HAZMAT teams','Decontamination sites'])+'</div>';
-  html += '<div id="'+id+'-comply" class="tab-panel">'+proLock('Regulatory Compliance',['DOT transport rules','OSHA requirements','EPA obligations'])+'</div>';
+  var histHtml = isProUser
+    ? '<div style="color:var(--muted);font-size:13px;padding:12px 0;">Historic accident data will load here in full Pro release.</div>'
+    : proLock('Historic Accidents',['Notable spills & disasters','Lessons learned','Casualty & damage reports']);
+  html += '<div id="'+id+'-history" class="tab-panel">'+histHtml+'</div>';
+  var ergHtml = isProUser
+    ? '<div style="color:var(--muted);font-size:13px;padding:12px 0;">ERG data will load here in full Pro release.</div>'
+    : proLock('ERG Data',['Full Emergency Response Guidebook','Isolation distances','Protective action zones']);
+  html += '<div id="'+id+'-erg" class="tab-panel">'+ergHtml+'</div>';
+  var nearbyHtml = isProUser
+    ? '<div style="text-align:center;padding:20px 0;"><button onclick="loadNearby(this)" data-card="'+id+'" style="background:var(--accent);color:#000;border:none;padding:10px 20px;font-weight:700;font-size:15px;cursor:pointer;border-radius:2px;">FIND NEARBY FACILITIES</button></div>'
+    : proLock('Nearby Facilities',['Hospitals & trauma centers','Fire stations & HAZMAT teams','Decontamination sites']);
+  html += '<div id="'+id+'-nearby" class="tab-panel">'+nearbyHtml+'</div>';
+  var complyHtml = isProUser
+    ? '<div style="color:var(--muted);font-size:13px;padding:12px 0;">Regulatory compliance data will load here in full Pro release.</div>'
+    : proLock('Regulatory Compliance',['DOT transport rules','OSHA requirements','EPA obligations']);
+  html += '<div id="'+id+'-comply" class="tab-panel">'+complyHtml+'</div>';
   html += '</div>';
   return html;
 }
@@ -740,7 +843,123 @@ function clearHistory() {
   }
 }
 
+// ── PRO SYSTEM ──
+var PRO_CODE = "HAZPRO2026";
+var isProUser = false;
+
+function checkProStatus() {
+  try {
+    isProUser = localStorage.getItem('wth_pro_active') === 'true';
+  } catch(e) { isProUser = false; }
+  updateProUI();
+}
+
+function updateProUI() {
+  var badge = document.getElementById('proHeaderBadge');
+  if (badge) {
+    if (isProUser) {
+      badge.textContent = 'PRO';
+      badge.className = 'pro-badge pro-active-badge';
+    } else {
+      badge.textContent = 'PRO';
+      badge.className = 'pro-badge';
+    }
+  }
+}
+
+function activatePro() {
+  try { localStorage.setItem('wth_pro_active', 'true'); } catch(e) {}
+  isProUser = true;
+  updateProUI();
+}
+
+function openProScreen() {
+  document.getElementById('proScreen').classList.add('open');
+  document.getElementById('proCodeInput').value = '';
+  document.getElementById('proCodeMsg').textContent = '';
+  document.getElementById('proCodeMsg').style.color = '';
+}
+
+function closeProScreen() {
+  document.getElementById('proScreen').classList.remove('open');
+}
+
+function handleSubscribe() {
+  alert('In-app subscription coming soon! Use unlock code HAZPRO2026 to activate Pro now.');
+}
+
+function redeemCode() {
+  var code = document.getElementById('proCodeInput').value.trim().toUpperCase();
+  var msg = document.getElementById('proCodeMsg');
+  if (code === PRO_CODE) {
+    activatePro();
+    msg.textContent = '&#10003; Pro unlocked! Enjoy all features.';
+    msg.style.color = '#2ecc71';
+    setTimeout(function() { closeProScreen(); }, 1500);
+  } else {
+    msg.textContent = 'Invalid code. Please try again.';
+    msg.style.color = 'var(--danger)';
+  }
+}
+
+function requirePro(callback) {
+  if (isProUser) { callback(); return; }
+  openProScreen();
+}
+
+function openHistoryGated() {
+  if (!isProUser) { openProScreen(); return; }
+  renderHistory();
+  document.getElementById('historyScreen').classList.add('open');
+}
+
+// Nearby handled by loadNearby()
+
+// ── PRO FEATURE: REPORT INCIDENT ──
+function reportIncident(hazardType, unNumber) {
+  var lines = ['HAZMAT INCIDENT REPORT','','Hazard: '+hazardType,'UN Number: '+unNumber,'Time: '+new Date().toLocaleString(),'','Generated by What\'s That HAZMAT.','ALWAYS CALL 911 IN AN EMERGENCY.'];
+  var msg = lines.join('\n');
+  if (navigator.share) {
+    navigator.share({ title: 'HAZMAT Incident Report', text: msg }).catch(function(){});
+  } else {
+    var el = document.createElement('textarea');
+    el.value = msg;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    alert('Incident report copied to clipboard!');
+  }
+}
+
+function loadNearby(btn) {
+  var cardId = btn.dataset.card;
+  var panel = document.getElementById(cardId + '-nearby');
+  panel.innerHTML = '<div style="padding:12px 0;text-align:center;color:var(--muted);">LOCATING NEARBY FACILITIES...</div>';
+  if (!navigator.geolocation) {
+    panel.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:12px 0;">Location access not available.</div>';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    var lat = pos.coords.latitude.toFixed(4);
+    var lon = pos.coords.longitude.toFixed(4);
+    var mapsUrl = 'https://www.google.com/maps/search/hospital+fire+station/@'+lat+','+lon+',13z';
+    var hazUrl = 'https://www.google.com/maps/search/hazmat+decontamination/@'+lat+','+lon+',13z';
+    var locStyle = 'font-size:10px;letter-spacing:1.5px;color:var(--accent);margin-bottom:12px;';
+    var linkStyle = 'display:block;padding:12px 16px;background:rgba(245,168,0,0.1);border:1px solid rgba(245,168,0,0.3);border-radius:4px;color:var(--accent);font-size:14px;text-decoration:none;margin-bottom:8px;';
+    panel.innerHTML = '<div style="padding:12px 0;">'
+      + '<div style="'+locStyle+'">YOUR LOCATION: '+lat+', '+lon+'</div>'
+      + '<a href="'+mapsUrl+'" target="_blank" style="'+linkStyle+'">&#128205; Nearby Hospitals &amp; Fire Stations</a>'
+      + '<a href="'+hazUrl+'" target="_blank" style="'+linkStyle+'">&#9763; HAZMAT Decontamination Sites</a>'
+      + '</div>';
+  }, function() {
+    panel.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:12px 0;">Location access denied. Enable location in your browser settings.</div>';
+  });
+}
+
+
 buildSamplesDropdown();
+checkProStatus();
 </script>
 </body>
 </html>
