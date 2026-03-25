@@ -294,7 +294,12 @@
     <div class="pro-modal-header">
       <div class="pro-modal-diamond"><span>PRO</span></div>
       <div class="pro-modal-title">UPGRADE TO PRO</div>
-      <div class="pro-modal-price">$4.99 / YEAR &middot; CANCEL ANYTIME</div>
+      <div style="display:inline-block;background:rgba(224,60,60,0.15);border:1px solid rgba(224,60,60,0.4);color:#e03c3c;font-family:'IBM Plex Mono',sans-serif;font-size:var(--dt-xs);letter-spacing:1.5px;padding:3px 10px;border-radius:2px;margin-bottom:8px;">LIMITED INTRODUCTORY PRICE</div>
+      <div class="pro-modal-price" style="display:flex;align-items:baseline;justify-content:center;gap:10px;">
+        <span style="font-size:var(--dt-3xl);font-weight:700;color:var(--accent);font-family:'Rajdhani',sans-serif;">$4.99</span>
+        <span style="color:var(--muted);font-size:var(--dt-sm);">/ year</span>
+      </div>
+      <div style="font-size:var(--dt-xs);color:var(--muted);margin-top:4px;letter-spacing:0.5px;">Regular price $9.99/yr &middot; Lock in now &middot; Cancel anytime</div>
     </div>
     <div class="pro-modal-features">
       <div class="pro-modal-feature"><span>&#128165;</span> Historic accidents &amp; notable incidents</div>
@@ -306,7 +311,7 @@
       <div class="pro-modal-feature"><span>&#128338;</span> Full scan history (25 scans)</div>
     </div>
     <div class="pro-modal-actions">
-      <button class="pro-subscribe-btn" onclick="handleSubscribe()">SUBSCRIBE &mdash; $4.99/YEAR</button>
+      <button class="pro-subscribe-btn" onclick="handleSubscribe()">LOCK IN $4.99/YEAR &rarr;</button>
       <div class="pro-code-row">
         <input class="pro-code-input" id="proCodeInput" type="text" placeholder="HAVE AN UNLOCK CODE?">
         <button class="pro-code-btn" onclick="redeemCode()">REDEEM</button>
