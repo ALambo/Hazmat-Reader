@@ -6,742 +6,178 @@
 <title>What's That HAZMAT</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@600;700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;700&display=swap');
+  :root { --bg:#0d0f0f; --surface:#161a1a; --border:#2a3030; --accent:#f5a800; --danger:#e03c3c; --safe:#2ecc71; --text:#e8ecec; --muted:#6b7a7a; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'IBM Plex Sans',sans-serif; min-height:100vh; display:flex; flex-direction:column; align-items:center; }
+  body::before { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px); pointer-events:none; z-index:100; }
 
-  :root {
-    --bg: #0d0f0f;
-    --surface: #161a1a;
-    --border: #2a3030;
-    --accent: #f5a800;
-    --danger: #e03c3c;
-    --safe: #2ecc71;
-    --text: #e8ecec;
-    --muted: #6b7a7a;
-  }
+  #pinScreen { position:fixed; inset:0; background:var(--bg); z-index:999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; }
+  .pin-diamond { width:64px; height:64px; background:var(--accent); transform:rotate(45deg); display:flex; align-items:center; justify-content:center; margin-bottom:28px; animation:pinGlow 2s ease-in-out infinite alternate; }
+  @keyframes pinGlow { from{box-shadow:0 0 20px rgba(245,168,0,0.2)} to{box-shadow:0 0 50px rgba(245,168,0,0.45)} }
+  .pin-diamond span { transform:rotate(-45deg); font-family:'Rajdhani',sans-serif; font-weight:700; font-size:16px; color:#000; }
+  .pin-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:32px; letter-spacing:3px; color:var(--accent); margin-bottom:4px; }
+  .pin-subtitle { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:40px; }
+  .pin-dots { display:flex; gap:14px; margin-bottom:32px; }
+  .pin-dot { width:14px; height:14px; border:2px solid var(--border); border-radius:50%; transition:all 0.15s; }
+  .pin-dot.filled { background:var(--accent); border-color:var(--accent); box-shadow:0 0 8px rgba(245,168,0,0.5); }
+  .pin-dot.error { background:var(--danger); border-color:var(--danger); animation:shake 0.4s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+  .pin-keypad { display:grid; grid-template-columns:repeat(3,72px); gap:12px; }
+  .pin-key { height:72px; background:var(--surface); border:1px solid var(--border); border-radius:4px; color:var(--text); font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:1px; cursor:pointer; transition:all 0.12s; display:flex; align-items:center; justify-content:center; user-select:none; -webkit-tap-highlight-color:transparent; }
+  .pin-key:active { background:rgba(245,168,0,0.12); border-color:var(--accent); color:var(--accent); transform:scale(0.95); }
+  .pin-key.del { font-size:20px; color:var(--muted); }
+  .pin-key.empty { background:transparent; border-color:transparent; pointer-events:none; }
+  .pin-message { margin-top:20px; font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:1px; color:var(--danger); min-height:18px; text-align:center; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  #disclaimerScreen { position:fixed; inset:0; background:var(--bg); z-index:998; display:none; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px; overflow-y:auto; }
+  .disc-diamond { width:56px; height:56px; background:var(--danger); transform:rotate(45deg); display:flex; align-items:center; justify-content:center; margin-bottom:24px; box-shadow:0 0 30px rgba(224,60,60,0.3); }
+  .disc-diamond span { transform:rotate(-45deg); font-family:'Rajdhani',sans-serif; font-weight:700; font-size:20px; color:#fff; }
+  .disc-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:28px; letter-spacing:3px; color:var(--danger); margin-bottom:6px; text-align:center; }
+  .disc-subtitle { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:32px; text-align:center; }
+  .disc-box { width:100%; max-width:480px; background:var(--surface); border:1px solid rgba(224,60,60,0.3); border-radius:4px; padding:20px; margin-bottom:24px; }
+  .disc-item { display:flex; align-items:flex-start; gap:12px; margin-bottom:16px; }
+  .disc-item:last-child { margin-bottom:0; }
+  .disc-bullet { width:18px; height:18px; background:rgba(224,60,60,0.15); border:1px solid rgba(224,60,60,0.4); transform:rotate(45deg); flex-shrink:0; margin-top:2px; }
+  .disc-text { font-size:14px; line-height:1.6; color:#b0bcbc; }
+  .disc-text strong { color:var(--text); font-weight:600; }
+  .disc-agree-btn { width:100%; max-width:480px; padding:16px; background:var(--danger); color:#fff; border:none; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:20px; letter-spacing:3px; cursor:pointer; border-radius:2px; transition:all 0.2s; }
+  .disc-agree-btn:hover { background:#f04040; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'IBM Plex Sans', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+  header { width:100%; max-width:680px; padding:32px 24px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:16px; }
+  .logo-diamond { width:44px; height:44px; background:var(--accent); transform:rotate(45deg); flex-shrink:0; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(245,168,0,0.3); }
+  .logo-diamond span { transform:rotate(-45deg); font-family:'Rajdhani',sans-serif; font-weight:700; font-size:14px; color:#000; }
+  .header-text h1 { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:26px; letter-spacing:2px; color:var(--accent); line-height:1; }
+  .header-text p { font-size:12px; color:var(--muted); font-family:'IBM Plex Mono',monospace; letter-spacing:1px; margin-top:3px; }
+  .about-trigger { margin-left:auto; background:transparent; border:1px solid var(--border); color:var(--muted); padding:6px 12px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1px; cursor:pointer; border-radius:2px; transition:all 0.2s; flex-shrink:0; }
+  .about-trigger:hover { border-color:var(--accent); color:var(--accent); }
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
-    pointer-events: none;
-    z-index: 100;
-  }
+  main { width:100%; max-width:680px; padding:28px 24px; display:flex; flex-direction:column; gap:20px; }
 
-  /* ── PIN SCREEN ── */
-  #pinScreen {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    z-index: 999;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-  }
+  .upload-zone { border:2px dashed var(--border); border-radius:4px; padding:40px 24px; text-align:center; cursor:pointer; background:var(--surface); transition:all 0.2s; position:relative; }
+  .upload-zone:hover { border-color:var(--accent); background:rgba(245,168,0,0.04); }
+  .upload-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .upload-zone-top { display:flex; justify-content:space-between; align-items:flex-start; position:relative; }
+  .samples-wrap { position:relative; z-index:10; }
+  .samples-btn { background:transparent; border:1px solid var(--border); color:var(--accent); font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; padding:5px 10px; cursor:pointer; border-radius:2px; transition:all 0.2s; white-space:nowrap; }
+  .samples-btn:hover { border-color:var(--accent); background:rgba(245,168,0,0.08); }
+  .samples-dropdown { display:none; position:absolute; top:100%; right:0; margin-top:4px; background:#1a1f1f; border:1px solid var(--border); border-radius:4px; min-width:260px; max-height:320px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.4); z-index:999; }
+  .samples-dropdown.open { display:block; }
+  .sample-item { display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; border-bottom:1px solid var(--border); transition:background 0.15s; }
+  .sample-item:last-child { border-bottom:none; }
+  .sample-item:hover { background:rgba(245,168,0,0.07); }
+  .sample-name { font-size:13px; font-weight:600; color:var(--text); margin-bottom:1px; }
+  .sample-un { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:1px; }
+  .upload-icon { width:52px; height:52px; margin:16px auto; border:2px solid var(--border); transform:rotate(45deg); display:flex; align-items:center; justify-content:center; background:var(--bg); transition:border-color 0.2s; }
+  .upload-zone:hover .upload-icon { border-color:var(--accent); }
+  .upload-icon svg { transform:rotate(-45deg); color:var(--muted); width:22px; height:22px; }
+  .upload-zone:hover .upload-icon svg { color:var(--accent); }
+  .upload-title { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:2px; color:var(--text); margin-bottom:6px; }
+  .upload-sub { font-size:13px; color:var(--muted); font-family:'IBM Plex Mono',monospace; }
+  .camera-btn { margin-top:16px; display:inline-flex; align-items:center; gap:8px; background:transparent; border:1px solid var(--border); color:var(--text); padding:8px 20px; font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:1px; cursor:pointer; transition:all 0.2s; border-radius:2px; position:relative; z-index:2; }
+  .camera-btn:hover { border-color:var(--accent); color:var(--accent); }
 
-  .pin-diamond {
-    width: 64px; height: 64px;
-    background: var(--accent);
-    transform: rotate(45deg);
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 28px;
-    animation: pinGlow 2s ease-in-out infinite alternate;
-  }
-  @keyframes pinGlow {
-    from { box-shadow: 0 0 20px rgba(245,168,0,0.2); }
-    to   { box-shadow: 0 0 50px rgba(245,168,0,0.45); }
-  }
-  .pin-diamond span {
-    transform: rotate(-45deg);
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px; color: #000; letter-spacing: 1px;
-  }
-  .pin-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 32px; letter-spacing: 3px; color: var(--accent); margin-bottom: 4px;
-  }
-  .pin-subtitle {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px; letter-spacing: 2px; color: var(--muted); margin-bottom: 40px;
-  }
-  .pin-dots { display: flex; gap: 14px; margin-bottom: 32px; }
-  .pin-dot {
-    width: 14px; height: 14px;
-    border: 2px solid var(--border); border-radius: 50%; transition: all 0.15s;
-  }
-  .pin-dot.filled { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px rgba(245,168,0,0.5); }
-  .pin-dot.error  { background: var(--danger); border-color: var(--danger); animation: shake 0.4s ease; }
-  @keyframes shake {
-    0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)}
-    40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)}
-  }
-  .pin-keypad { display: grid; grid-template-columns: repeat(3, 72px); gap: 12px; }
-  .pin-key {
-    height: 72px; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 4px; color: var(--text);
-    font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1px;
-    cursor: pointer; transition: all 0.12s;
-    display: flex; align-items: center; justify-content: center;
-    user-select: none; -webkit-tap-highlight-color: transparent;
-  }
-  .pin-key:active { background: rgba(245,168,0,0.12); border-color: var(--accent); color: var(--accent); transform: scale(0.95); }
-  .pin-key.del { font-size: 20px; color: var(--muted); }
-  .pin-key.empty { background: transparent; border-color: transparent; pointer-events: none; }
-  .pin-message {
-    margin-top: 20px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px; letter-spacing: 1px; color: var(--danger); min-height: 18px; text-align: center;
-  }
+  .preview-wrap { position:relative; border:1px solid var(--border); border-radius:4px; overflow:hidden; background:var(--surface); }
+  .preview-wrap img { width:100%; max-height:300px; object-fit:contain; display:block; }
+  .preview-label { position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.7); font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1px; padding:4px 8px; color:var(--accent); }
+  .clear-btn { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); border:1px solid var(--border); color:var(--muted); width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px; transition:all 0.2s; border-radius:2px; }
+  .clear-btn:hover { color:var(--danger); border-color:var(--danger); }
 
-  /* ── APP ── */
-  header {
-    width: 100%; max-width: 680px;
-    padding: 32px 24px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 16px;
-  }
-  .logo-diamond {
-    width: 44px; height: 44px; background: var(--accent);
-    transform: rotate(45deg); flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 20px rgba(245,168,0,0.3);
-  }
-  .logo-diamond span { transform: rotate(-45deg); font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: #000; letter-spacing: 1px; }
-  .header-text h1 { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 26px; letter-spacing: 2px; color: var(--accent); line-height: 1; }
-  .header-text p  { font-size: 12px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; letter-spacing: 1px; margin-top: 3px; }
+  .analyze-btn { width:100%; padding:16px; background:var(--accent); color:#000; border:none; font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:3px; cursor:pointer; transition:all 0.2s; border-radius:2px; display:flex; align-items:center; justify-content:center; gap:10px; }
+  .analyze-btn:hover { background:#ffc020; }
+  .analyze-btn:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; }
 
-  main { width: 100%; max-width: 680px; padding: 28px 24px; display: flex; flex-direction: column; gap: 20px; }
+  .result-card { border:1px solid var(--border); border-radius:4px; background:var(--surface); overflow:hidden; animation:slideIn 0.3s ease; }
+  @keyframes slideIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  .result-header { padding:14px 18px; display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--border); }
+  .result-status-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .result-header-label { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--muted); flex:1; }
+  .result-class-badge { font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:2px; padding:3px 10px; border-radius:2px; background:rgba(245,168,0,0.15); color:var(--accent); border:1px solid rgba(245,168,0,0.3); }
+  .result-body { padding:20px 18px; }
+  .result-main-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:30px; letter-spacing:2px; color:var(--text); line-height:1.1; margin-bottom:12px; }
+  .result-text { font-size:16px; line-height:1.7; color:#b0bcbc; }
+  .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
+  .info-cell { background:var(--bg); border:1px solid var(--border); padding:12px 14px; border-radius:2px; }
+  .info-cell-label { font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:1px; color:var(--muted); margin-bottom:5px; }
+  .info-cell-value { font-size:17px; font-weight:600; color:var(--text); }
 
-  .upload-zone {
-    border: 2px dashed var(--border); border-radius: 4px;
-    padding: 40px 24px; text-align: center; cursor: pointer;
-    background: var(--surface); transition: all 0.2s; position: relative;
-  }
-  .upload-zone:hover { border-color: var(--accent); background: rgba(245,168,0,0.04); }
-  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .tabs-wrap { display:flex; border-bottom:1px solid var(--border); background:var(--surface); overflow-x:auto; scrollbar-width:none; }
+  .tabs-wrap::-webkit-scrollbar { display:none; }
+  .tab-btn { flex-shrink:0; padding:12px 16px; font-family:'IBM Plex Mono',monospace; font-size:13px; letter-spacing:1px; color:var(--muted); background:transparent; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+  .tab-btn:hover { color:var(--text); }
+  .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-btn.pro-tab { color:#6b5a2a; }
+  .tab-btn.pro-tab:hover { color:var(--accent); }
+  .tab-panel { display:none; padding:16px 18px; }
+  .tab-panel.active { display:block; }
 
-  .upload-icon {
-    width: 52px; height: 52px; margin: 0 auto 16px;
-    border: 2px solid var(--border); transform: rotate(45deg);
-    display: flex; align-items: center; justify-content: center; background: var(--bg); transition: border-color 0.2s;
-  }
-  .upload-zone:hover .upload-icon { border-color: var(--accent); }
-  .upload-icon svg { transform: rotate(-45deg); color: var(--muted); width: 22px; height: 22px; }
-  .upload-zone:hover .upload-icon svg { color: var(--accent); }
-  .upload-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--text); margin-bottom: 6px; }
-  .upload-sub   { font-size: 13px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+  .pro-lock { text-align:center; padding:24px 16px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .pro-lock-diamond { width:48px; height:48px; background:rgba(245,168,0,0.15); border:1px solid rgba(245,168,0,0.4); transform:rotate(45deg); display:flex; align-items:center; justify-content:center; }
+  .pro-lock-diamond span { transform:rotate(-45deg); font-size:20px; }
+  .pro-lock-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:20px; letter-spacing:2px; color:var(--accent); }
+  .pro-lock-text { font-size:13px; color:var(--muted); line-height:1.6; max-width:280px; }
+  .pro-lock-btn { padding:10px 24px; background:var(--accent); color:#000; border:none; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:16px; letter-spacing:2px; cursor:pointer; border-radius:2px; transition:all 0.2s; }
+  .pro-lock-btn:hover { background:#ffc020; }
+  .pro-features-list { text-align:left; width:100%; max-width:280px; }
+  .pro-feature-item { font-size:12px; color:var(--muted); padding:4px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+  .pro-feature-item:last-child { border-bottom:none; }
 
-  .camera-btn {
-    margin-top: 16px;
-    display: inline-flex; align-items: center; gap: 8px;
-    background: transparent; border: 1px solid var(--border); color: var(--text);
-    padding: 8px 20px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 1px;
-    cursor: pointer; transition: all 0.2s; border-radius: 2px;
-    position: relative; z-index: 2; pointer-events: all;
-  }
-  .camera-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .news-item { padding:12px 0; border-bottom:1px solid var(--border); }
+  .news-item:last-child { border-bottom:none; }
+  .news-date { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--muted); margin-bottom:4px; }
+  .news-title { font-size:14px; font-weight:600; color:var(--text); margin-bottom:4px; line-height:1.4; }
+  .news-summary { font-size:13px; color:#b0bcbc; line-height:1.5; }
+  .supply-item { padding:10px 0; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; gap:12px; }
+  .supply-item:last-child { border-bottom:none; }
+  .supply-cat { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--accent); padding:2px 6px; border:1px solid rgba(245,168,0,0.3); border-radius:2px; white-space:nowrap; margin-top:2px; flex-shrink:0; }
+  .supply-name { font-size:14px; font-weight:600; color:var(--text); margin-bottom:2px; }
+  .supply-desc { font-size:12px; color:#b0bcbc; line-height:1.4; }
 
-  .preview-wrap { position: relative; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; background: var(--surface); }
-  .preview-wrap img { width: 100%; max-height: 300px; object-fit: contain; display: block; }
-  .preview-label { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1px; padding: 4px 8px; color: var(--accent); }
-  .clear-btn {
-    position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7);
-    border: 1px solid var(--border); color: var(--muted); width: 28px; height: 28px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 14px; transition: all 0.2s; border-radius: 2px;
-  }
-  .clear-btn:hover { color: var(--danger); border-color: var(--danger); }
+  .loading-wrap { padding:36px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:16px; }
+  .loading-diamond { width:40px; height:40px; border:2px solid var(--accent); transform:rotate(45deg); animation:pulse 1s ease-in-out infinite alternate; }
+  @keyframes pulse { from{opacity:0.3} to{opacity:1;box-shadow:0 0 20px rgba(245,168,0,0.5)} }
+  .loading-text { font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--muted); }
 
-  .analyze-btn {
-    width: 100%; padding: 16px; background: var(--accent); color: #000; border: none;
-    font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px;
-    cursor: pointer; transition: all 0.2s; border-radius: 2px;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-  }
-  .analyze-btn:hover    { background: #ffc020; }
-  .analyze-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+  .error-wrap { padding:20px 18px; display:flex; align-items:center; gap:12px; }
+  .error-icon { width:24px; height:24px; border:1px solid var(--danger); transform:rotate(45deg); flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .error-icon span { transform:rotate(-45deg); color:var(--danger); font-size:12px; }
+  .error-text { font-size:13px; color:var(--muted); line-height:1.5; }
+  .try-again-btn { margin-top:12px; width:100%; padding:10px; background:transparent; border:1px solid var(--border); color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:2px; cursor:pointer; border-radius:2px; transition:all 0.2s; }
+  .try-again-btn:hover { border-color:var(--accent); color:var(--accent); }
 
-  .result-card { border: 1px solid var(--border); border-radius: 4px; background: var(--surface); overflow: hidden; animation: slideIn 0.3s ease; }
-  @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  #aboutScreen { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:997; display:none; align-items:flex-end; justify-content:center; }
+  #aboutScreen.open { display:flex; }
+  .about-panel { background:var(--surface); width:100%; max-width:680px; border-radius:16px 16px 0 0; border-top:1px solid var(--border); padding:0 0 40px 0; max-height:85vh; overflow-y:auto; animation:slideUp 0.3s ease; }
+  @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+  .about-handle { width:40px; height:4px; background:var(--border); border-radius:2px; margin:12px auto 20px; }
+  .about-header { display:flex; align-items:center; gap:14px; padding:0 24px 20px; border-bottom:1px solid var(--border); }
+  .about-logo { width:48px; height:48px; background:var(--accent); transform:rotate(45deg); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .about-logo span { transform:rotate(-45deg); font-family:'Rajdhani',sans-serif; font-weight:700; font-size:14px; color:#000; }
+  .about-app-name { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:22px; color:var(--accent); letter-spacing:1px; line-height:1; }
+  .about-version { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:1px; margin-top:3px; }
+  .about-close { margin-left:auto; background:transparent; border:1px solid var(--border); color:var(--muted); width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+  .about-close:hover { border-color:var(--danger); color:var(--danger); }
+  .about-section { padding:20px 24px; border-bottom:1px solid var(--border); }
+  .about-section:last-child { border-bottom:none; }
+  .about-section-title { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--accent); margin-bottom:12px; }
+  .about-text { font-size:14px; line-height:1.7; color:#b0bcbc; }
+  .about-how-item { display:flex; gap:14px; margin-bottom:14px; align-items:flex-start; }
+  .about-how-item:last-child { margin-bottom:0; }
+  .about-step-num { width:28px; height:28px; background:rgba(245,168,0,0.15); border:1px solid rgba(245,168,0,0.4); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:14px; color:var(--accent); flex-shrink:0; margin-top:1px; }
+  .about-step-text { font-size:14px; line-height:1.6; color:#b0bcbc; }
+  .about-step-text strong { color:var(--text); }
+  .about-contact-btn { display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--bg); border:1px solid var(--border); border-radius:4px; color:var(--text); font-size:14px; cursor:pointer; transition:all 0.2s; text-decoration:none; width:100%; }
+  .about-contact-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .about-footer-text { font-size:12px; color:var(--muted); text-align:center; padding:0 24px; line-height:1.6; }
 
-  .result-header { padding: 14px 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
-  .result-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .result-header-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--muted); flex: 1; }
-  .result-class-badge {
-    font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px;
-    padding: 3px 10px; border-radius: 2px;
-    background: rgba(245,168,0,0.15); color: var(--accent); border: 1px solid rgba(245,168,0,0.3);
-  }
-  .result-body { padding: 20px 18px; }
-  .result-main-title { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 2px; color: var(--text); line-height: 1.1; margin-bottom: 12px; }
-  .result-text { font-size: 16px; line-height: 1.7; color: #b0bcbc; }
-
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
-  .info-cell { background: var(--bg); border: 1px solid var(--border); padding: 12px 14px; border-radius: 2px; }
-  .info-cell-label { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 1px; color: var(--muted); margin-bottom: 5px; }
-  .info-cell-value { font-size: 17px; font-weight: 600; color: var(--text); }
-
-  .loading-wrap { padding: 36px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; }
-  .loading-diamond { width: 40px; height: 40px; border: 2px solid var(--accent); transform: rotate(45deg); animation: pulse 1s ease-in-out infinite alternate; }
-  @keyframes pulse { from { opacity: 0.3; } to { opacity: 1; box-shadow: 0 0 20px rgba(245,168,0,0.5); } }
-  .loading-text { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 2px; color: var(--muted); }
-
-  .error-wrap { padding: 20px 18px; display: flex; align-items: center; gap: 12px; }
-  .error-icon { width: 24px; height: 24px; border: 1px solid var(--danger); transform: rotate(45deg); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-  .error-icon span { transform: rotate(-45deg); color: var(--danger); font-size: 12px; }
-  .error-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
-
-  .warning-strip {
-    width: 100%; max-width: 680px; padding: 12px 24px; margin-top: 8px;
-    background: rgba(224,60,60,0.07); border-top: 1px solid rgba(224,60,60,0.2);
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #7a5050; letter-spacing: 0.5px; text-align: center;
-  }
-
-  .hidden { display: none !important; }
-
-  /* ── ABOUT SCREEN ── */
-  #aboutScreen {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 997;
-    display: none;
-    align-items: flex-end;
-    justify-content: center;
-  }
-  #aboutScreen.open {
-    display: flex;
-  }
-  .about-panel {
-    background: var(--surface);
-    width: 100%;
-    max-width: 680px;
-    border-radius: 16px 16px 0 0;
-    border-top: 1px solid var(--border);
-    padding: 0 0 40px 0;
-    max-height: 85vh;
-    overflow-y: auto;
-    animation: slideUp 0.3s ease;
-  }
-  @keyframes slideUp {
-    from { transform: translateY(100%); }
-    to   { transform: translateY(0); }
-  }
-  .about-handle {
-    width: 40px; height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    margin: 12px auto 20px;
-  }
-  .about-header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 0 24px 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  .about-logo {
-    width: 48px; height: 48px;
-    background: var(--accent);
-    transform: rotate(45deg);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .about-logo span {
-    transform: rotate(-45deg);
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 16px; color: #000;
-  }
-  .about-app-name {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 22px;
-    color: var(--accent);
-    letter-spacing: 1px;
-    line-height: 1;
-  }
-  .about-version {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 1px;
-    margin-top: 3px;
-  }
-  .about-close {
-    margin-left: auto;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
-  }
-  .about-close:hover { border-color: var(--danger); color: var(--danger); }
-  .about-section {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
-  }
-  .about-section:last-child { border-bottom: none; }
-  .about-section-title {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--accent);
-    margin-bottom: 12px;
-    text-transform: uppercase;
-  }
-  .about-text {
-    font-size: 14px;
-    line-height: 1.7;
-    color: #b0bcbc;
-  }
-  .about-how-item {
-    display: flex;
-    gap: 14px;
-    margin-bottom: 14px;
-    align-items: flex-start;
-  }
-  .about-how-item:last-child { margin-bottom: 0; }
-  .about-step-num {
-    width: 28px; height: 28px;
-    background: rgba(245,168,0,0.15);
-    border: 1px solid rgba(245,168,0,0.4);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--accent);
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-  .about-step-text {
-    font-size: 14px;
-    line-height: 1.6;
-    color: #b0bcbc;
-  }
-  .about-step-text strong { color: var(--text); }
-  .about-contact-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text);
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-decoration: none;
-    width: 100%;
-  }
-  .about-contact-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .about-footer-text {
-    font-size: 12px;
-    color: var(--muted);
-    text-align: center;
-    padding: 0 24px;
-    line-height: 1.6;
-  }
-  /* About trigger button in header */
-  .about-trigger {
-    margin-left: auto;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    padding: 6px 12px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 1px;
-    cursor: pointer;
-    border-radius: 2px;
-    transition: all 0.2s;
-  }
-  .about-trigger:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* ── SAMPLES DROPDOWN ── */
-  .upload-zone-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    position: relative;
-  }
-  .samples-wrap {
-    position: relative;
-    z-index: 10;
-  }
-  .samples-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--accent);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    padding: 5px 10px;
-    cursor: pointer;
-    border-radius: 2px;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .samples-btn:hover { border-color: var(--accent); background: rgba(245,168,0,0.08); }
-  .samples-dropdown {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 4px;
-    background: #1a1f1f;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    min-width: 260px;
-    max-height: 320px;
-    overflow-y: auto;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    z-index: 999;
-  }
-  .samples-dropdown.open { display: block; }
-  .sample-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    cursor: pointer;
-    border-bottom: 1px solid var(--border);
-    transition: background 0.15s;
-  }
-  .sample-item:last-child { border-bottom: none; }
-  .sample-item:hover { background: rgba(245,168,0,0.07); }
-  .sample-diamond {
-    width: 28px;
-    height: 28px;
-    transform: rotate(45deg);
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0;
-  }
-  .sample-info { flex: 1; }
-  .sample-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 1px;
-  }
-  .sample-un {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 1px;
-  }
-
-  /* ── RESULT TABS ── */
-  .tabs-wrap {
-    display: flex;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .tabs-wrap::-webkit-scrollbar { display: none; }
-  .tab-btn {
-    flex-shrink: 0;
-    padding: 12px 16px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    letter-spacing: 1px;
-    color: var(--muted);
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .tab-btn:hover { color: var(--text); }
-  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .tab-btn.pro-tab { color: #6b5a2a; }
-  .tab-btn.pro-tab:hover { color: var(--accent); }
-  .tab-panel { display: none; padding: 16px 18px; }
-  .tab-panel.active { display: block; }
-
-  /* Pro lock screen */
-  .pro-lock {
-    text-align: center;
-    padding: 24px 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-  }
-  .pro-lock-diamond {
-    width: 48px; height: 48px;
-    background: rgba(245,168,0,0.15);
-    border: 1px solid rgba(245,168,0,0.4);
-    transform: rotate(45deg);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .pro-lock-diamond span {
-    transform: rotate(-45deg);
-    font-size: 20px;
-  }
-  .pro-lock-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 20px;
-    letter-spacing: 2px;
-    color: var(--accent);
-  }
-  .pro-lock-text {
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.6;
-    max-width: 280px;
-  }
-  .pro-lock-btn {
-    margin-top: 4px;
-    padding: 10px 24px;
-    background: var(--accent);
-    color: #000;
-    border: none;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 16px;
-    letter-spacing: 2px;
-    cursor: pointer;
-    border-radius: 2px;
-    transition: all 0.2s;
-  }
-  .pro-lock-btn:hover { background: #ffc020; }
-  .pro-features-list {
-    text-align: left;
-    width: 100%;
-    max-width: 280px;
-  }
-  .pro-feature-item {
-    font-size: 12px;
-    color: var(--muted);
-    padding: 4px 0;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .pro-feature-item:last-child { border-bottom: none; }
-
-  /* News items */
-  .news-item {
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .news-item:last-child { border-bottom: none; }
-  .news-date {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 1px;
-    color: var(--muted);
-    margin-bottom: 4px;
-  }
-  .news-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 4px;
-    line-height: 1.4;
-  }
-  .news-summary {
-    font-size: 13px;
-    color: #b0bcbc;
-    line-height: 1.5;
-  }
-
-  /* Supply items */
-  .supply-item {
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .supply-item:last-child { border-bottom: none; }
-  .supply-cat {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 1px;
-    color: var(--accent);
-    padding: 2px 6px;
-    border: 1px solid rgba(245,168,0,0.3);
-    border-radius: 2px;
-    white-space: nowrap;
-    margin-top: 2px;
-    flex-shrink: 0;
-  }
-  .supply-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-  .supply-desc { font-size: 12px; color: #b0bcbc; line-height: 1.4; }
-
-  /* History items */
-  .history-item {
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .history-item:last-child { border-bottom: none; }
-  .history-year {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 1px;
-    color: var(--danger);
-    margin-bottom: 4px;
-  }
-  .history-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
-  .history-desc {
-    font-size: 13px;
-    color: #b0bcbc;
-    line-height: 1.5;
-  }
-
-  /* Loading mini */
-  .mini-loading {
-    text-align: center;
-    padding: 24px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--muted);
-  }
-
-  .try-again-btn {
-    margin-top: 12px;
-    width: 100%;
-    padding: 10px;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 2px;
-    cursor: pointer;
-    border-radius: 2px;
-    transition: all 0.2s;
-  }
-  .try-again-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* ── DISCLAIMER SCREEN ── */
-  #disclaimerScreen {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    z-index: 998;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 24px;
-  }
-  .disc-diamond {
-    width: 56px; height: 56px;
-    background: var(--danger);
-    transform: rotate(45deg);
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 28px;
-    box-shadow: 0 0 30px rgba(224,60,60,0.3);
-  }
-  .disc-diamond span {
-    transform: rotate(-45deg);
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px; color: #fff; letter-spacing: 1px;
-  }
-  .disc-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 28px; letter-spacing: 3px;
-    color: var(--danger); margin-bottom: 6px; text-align: center;
-  }
-  .disc-subtitle {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px; letter-spacing: 2px;
-    color: var(--muted); margin-bottom: 32px; text-align: center;
-  }
-  .disc-box {
-    width: 100%; max-width: 480px;
-    background: var(--surface);
-    border: 1px solid rgba(224,60,60,0.3);
-    border-radius: 4px;
-    padding: 20px;
-    margin-bottom: 24px;
-  }
-  .disc-item {
-    display: flex; align-items: flex-start; gap: 12px;
-    margin-bottom: 16px;
-  }
-  .disc-item:last-child { margin-bottom: 0; }
-  .disc-bullet {
-    width: 18px; height: 18px;
-    background: rgba(224,60,60,0.15);
-    border: 1px solid rgba(224,60,60,0.4);
-    transform: rotate(45deg);
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-  .disc-text {
-    font-size: 14px; line-height: 1.6; color: #b0bcbc;
-  }
-  .disc-text strong {
-    color: var(--text); font-weight: 600;
-  }
-  .disc-agree-btn {
-    width: 100%; max-width: 480px;
-    padding: 16px;
-    background: var(--danger); color: #fff;
-    border: none;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px; letter-spacing: 3px;
-    cursor: pointer; border-radius: 2px;
-    transition: all 0.2s;
-  }
-  .disc-agree-btn:hover { background: #f04040; }
-  .disc-footer {
-    margin-top: 16px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px; letter-spacing: 1px;
-    color: var(--muted); text-align: center;
-    max-width: 480px; line-height: 1.6;
-  }
-
-  @media (max-width: 480px) {
-    .info-grid { grid-template-columns: 1fr; }
-    header { padding: 20px 16px 14px; }
-    main   { padding: 20px 16px; }
-  }
+  .warning-strip { width:100%; max-width:680px; padding:12px 24px; margin-top:8px; background:rgba(224,60,60,0.07); border-top:1px solid rgba(224,60,60,0.2); font-family:'IBM Plex Mono',monospace; font-size:11px; color:#7a5050; letter-spacing:0.5px; text-align:center; }
+  .hidden { display:none !important; }
+  @media(max-width:480px) { .info-grid{grid-template-columns:1fr} header{padding:20px 16px 14px} main{padding:20px 16px} }
 </style>
 </head>
 <body>
 
-<!-- PIN SCREEN -->
 <div id="pinScreen">
-  <div class="pin-diamond"><span>WH</span></div>
+  <div class="pin-diamond"><span>WTH</span></div>
   <div class="pin-title">What's That HAZMAT</div>
   <div class="pin-subtitle">ENTER PIN TO CONTINUE</div>
   <div class="pin-dots">
@@ -762,103 +198,63 @@
     <button class="pin-key" onclick="pinPress('9')">9</button>
     <button class="pin-key empty"></button>
     <button class="pin-key" onclick="pinPress('0')">0</button>
-    <button class="pin-key del" onclick="pinDelete()">⌫</button>
+    <button class="pin-key del" onclick="pinDelete()">&#9003;</button>
   </div>
   <div class="pin-message" id="pinMessage"></div>
 </div>
 
-<!-- DISCLAIMER SCREEN -->
 <div id="disclaimerScreen">
   <div class="disc-diamond"><span>!</span></div>
   <div class="disc-title">Important Disclaimer</div>
   <div class="disc-subtitle">PLEASE READ BEFORE CONTINUING</div>
   <div class="disc-box">
-    <div class="disc-item">
-      <div class="disc-bullet"></div>
-      <div class="disc-text"><strong>For reference only.</strong> This app provides general information about HAZMAT placards and should not be your sole source of safety information.</div>
-    </div>
-    <div class="disc-item">
-      <div class="disc-bullet"></div>
-      <div class="disc-text"><strong>Always call 911</strong> in an emergency. Do not rely on this app to make life-safety decisions.</div>
-    </div>
-    <div class="disc-item">
-      <div class="disc-bullet"></div>
-      <div class="disc-text"><strong>Information may not be 100% accurate.</strong> AI interpretation can make mistakes. Always verify with official sources.</div>
-    </div>
-    <div class="disc-item">
-      <div class="disc-bullet"></div>
-      <div class="disc-text"><strong>First responders</strong> should follow their department's official HAZMAT protocols and not rely solely on this app.</div>
-    </div>
+    <div class="disc-item"><div class="disc-bullet"></div><div class="disc-text"><strong>For reference only.</strong> This app provides general information about HAZMAT placards and should not be your sole source of safety information.</div></div>
+    <div class="disc-item"><div class="disc-bullet"></div><div class="disc-text"><strong>Always call 911</strong> in an emergency. Do not rely on this app to make life-safety decisions.</div></div>
+    <div class="disc-item"><div class="disc-bullet"></div><div class="disc-text"><strong>Information may not be 100% accurate.</strong> AI interpretation can make mistakes. Always verify with official sources.</div></div>
+    <div class="disc-item"><div class="disc-bullet"></div><div class="disc-text"><strong>First responders</strong> should follow their department's official HAZMAT protocols and not rely solely on this app.</div></div>
   </div>
   <button class="disc-agree-btn" id="disclaimerAgreeBtn">I UNDERSTAND</button>
-  <div class="disc-footer">By continuing you acknowledge that you have read and understood this disclaimer.</div>
 </div>
 
-<!-- APP -->
-<header>
-  <div class="logo-diamond"><span>WH</span></div>
-  <div class="header-text">
-    <h1>What's That HAZMAT</h1>
-    <p>DOT PLACARD IDENTIFIER · HAZMAT REFERENCE</p>
-  </div>
-  <button class="about-trigger" onclick="document.getElementById('aboutScreen').classList.add('open')">ℹ ABOUT</button>
-</header>
-
-<!-- ABOUT SCREEN -->
 <div id="aboutScreen" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="about-panel">
     <div class="about-handle"></div>
     <div class="about-header">
-      <div class="about-logo"><span>WH</span></div>
-      <div>
-        <div class="about-app-name">What's That HAZMAT</div>
-        <div class="about-version">VERSION 1.0.0 · DOT PLACARD IDENTIFIER</div>
-      </div>
-      <button class="about-close" onclick="document.getElementById('aboutScreen').classList.remove('open')">✕</button>
+      <div class="about-logo"><span>WTH</span></div>
+      <div><div class="about-app-name">What's That HAZMAT</div><div class="about-version">VERSION 1.0.0 · DOT PLACARD IDENTIFIER</div></div>
+      <button class="about-close" onclick="document.getElementById('aboutScreen').classList.remove('open')">&#10005;</button>
     </div>
-
     <div class="about-section">
-      <div class="about-section-title">About This App</div>
+      <div class="about-section-title">ABOUT THIS APP</div>
       <div class="about-text">What's That HAZMAT uses AI to instantly identify and explain DOT HAZMAT placards — the diamond-shaped warning signs on trucks and rail cars. Point your camera at any placard to get plain-English information about the hazard, UN number, danger level, and emergency guidance.</div>
     </div>
-
     <div class="about-section">
-      <div class="about-section-title">How To Use</div>
-      <div class="about-how-item">
-        <div class="about-step-num">1</div>
-        <div class="about-step-text"><strong>Take a photo</strong> of any HAZMAT placard using your camera or upload an existing photo.</div>
-      </div>
-      <div class="about-how-item">
-        <div class="about-step-num">2</div>
-        <div class="about-step-text"><strong>Tap Analyze Placard</strong> to send the image to our AI for identification.</div>
-      </div>
-      <div class="about-how-item">
-        <div class="about-step-num">3</div>
-        <div class="about-step-text"><strong>Review the results</strong> — hazard class, UN number, danger level, common materials, and emergency actions.</div>
-      </div>
-      <div class="about-how-item">
-        <div class="about-step-num">4</div>
-        <div class="about-step-text"><strong>Browse the tabs</strong> for news, supplies needed, and premium features.</div>
-      </div>
+      <div class="about-section-title">HOW TO USE</div>
+      <div class="about-how-item"><div class="about-step-num">1</div><div class="about-step-text"><strong>Take a photo</strong> of any HAZMAT placard using your camera or upload an existing photo.</div></div>
+      <div class="about-how-item"><div class="about-step-num">2</div><div class="about-step-text"><strong>Tap Analyze Placard</strong> to send the image to our AI for identification.</div></div>
+      <div class="about-how-item"><div class="about-step-num">3</div><div class="about-step-text"><strong>Review the results</strong> — hazard class, UN number, danger level, and emergency actions.</div></div>
+      <div class="about-how-item"><div class="about-step-num">4</div><div class="about-step-text"><strong>Browse the tabs</strong> for news, supplies needed, and premium features.</div></div>
     </div>
-
     <div class="about-section">
-      <div class="about-section-title">Contact & Feedback</div>
-      <a class="about-contact-btn" href="/cdn-cgi/l/email-protection#e4938c859097908c85908c859e898590a48389858d88ca878b89">
-        <span>✉</span> <span class="__cf_email__" data-cfemail="84f3ece5f0f7f0ece5f0ece5fee9e5f0c4e3e9e5ede8aae7ebe9">[email&#160;protected]</span>
-      </a>
+      <div class="about-section-title">CONTACT</div>
+      <a class="about-contact-btn" href="mailto:whatsthathazmat@gmail.com"><span>&#9993;</span> whatsthathazmat@gmail.com</a>
     </div>
-
     <div class="about-section">
-      <div class="about-section-title">Disclaimer</div>
-      <div class="about-text">This app is for reference purposes only. Always call 911 in an emergency. Do not rely solely on this app for life-safety decisions. AI interpretation may not be 100% accurate — always verify with official sources and follow your organization's HAZMAT protocols.</div>
+      <div class="about-section-title">DISCLAIMER</div>
+      <div class="about-text">This app is for reference purposes only. Always call 911 in an emergency. Do not rely solely on this app for life-safety decisions. AI interpretation may not be 100% accurate.</div>
     </div>
-
-    <div class="about-section">
-      <div class="about-footer-text">© 2026 What's That HAZMAT · All rights reserved<br>For emergency response, always follow official DOT and OSHA guidelines.</div>
-    </div>
+    <div class="about-section"><div class="about-footer-text">&#169; 2026 What's That HAZMAT · All rights reserved</div></div>
   </div>
 </div>
+
+<header>
+  <div class="logo-diamond"><span>WTH</span></div>
+  <div class="header-text">
+    <h1>What's That HAZMAT</h1>
+    <p>DOT PLACARD IDENTIFIER · HAZMAT REFERENCE</p>
+  </div>
+  <button class="about-trigger" onclick="document.getElementById('aboutScreen').classList.add('open')">&#8505; ABOUT</button>
+</header>
 
 <main>
   <div class="upload-zone" id="uploadZone">
@@ -866,567 +262,364 @@
     <div class="upload-zone-top">
       <div></div>
       <div class="samples-wrap">
-        <button class="samples-btn" id="samplesBtn" onclick="event.stopPropagation(); toggleSamples()">SAMPLES ▾</button>
+        <button class="samples-btn" id="samplesBtn" onclick="event.stopPropagation();toggleSamples()">SAMPLES &#9660;</button>
         <div class="samples-dropdown" id="samplesDropdown"></div>
       </div>
     </div>
     <div class="upload-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
     </div>
     <div class="upload-title">Upload Placard Photo</div>
-    <div class="upload-sub">drag & drop or click to browse</div>
-    <button class="camera-btn" id="cameraBtn" onclick="event.stopPropagation(); document.getElementById('cameraInput').click()">
-      📷 &nbsp;USE CAMERA
-    </button>
-    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none; position:absolute; pointer-events:none;">
+    <div class="upload-sub">drag &amp; drop or click to browse</div>
+    <button class="camera-btn" onclick="event.stopPropagation();document.getElementById('cameraInput').click()">&#128247; &nbsp;USE CAMERA</button>
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;position:absolute;pointer-events:none;">
   </div>
 
   <div class="preview-wrap hidden" id="previewWrap">
     <img id="previewImg" src="" alt="Placard preview">
     <div class="preview-label">IMAGE LOADED</div>
-    <button class="clear-btn" id="clearBtn">✕</button>
+    <button class="clear-btn" id="clearBtn">&#10005;</button>
   </div>
 
-  <button class="analyze-btn" id="analyzeBtn" disabled>
-    <span>🔍</span> ANALYZE PLACARD
-  </button>
-
+  <button class="analyze-btn" id="analyzeBtn" disabled>&#128269; ANALYZE PLACARD</button>
   <div id="resultArea"></div>
 </main>
 
-<div class="warning-strip">
-  ⚠ FOR REFERENCE ONLY · IN AN EMERGENCY CALL 911 · DO NOT RELY SOLELY ON WHAT'S THAT HAZMAT
-</div>
+<div class="warning-strip">&#9888; FOR REFERENCE ONLY &middot; IN AN EMERGENCY CALL 911 &middot; DO NOT RELY SOLELY ON THIS APP</div>
 
 <script>
-  // ── PIN LOGIC ──
-  const CORRECT_PIN  = "1525";
-  const MAX_ATTEMPTS = 5;
-  const LOCKOUT_SECS = 30;
+var CORRECT_PIN = "1525";
+var MAX_ATTEMPTS = 5;
+var LOCKOUT_SECS = 30;
+var pinEntry = "", attempts = 0, lockedOut = false;
 
-  let pinEntry = "", attempts = 0, lockedOut = false;
+function pinPress(digit) {
+  if (lockedOut || pinEntry.length >= 4) return;
+  pinEntry += digit;
+  updateDots();
+  if (pinEntry.length === 4) checkPin();
+}
 
-  function pinPress(digit) {
-    if (lockedOut || pinEntry.length >= 4) return;
-    pinEntry += digit;
-    updateDots();
-    if (pinEntry.length === 4) checkPin();
+function pinDelete() {
+  if (lockedOut) return;
+  pinEntry = pinEntry.slice(0, -1);
+  updateDots();
+}
+
+function updateDots(state) {
+  for (var i = 0; i < 4; i++) {
+    var d = document.getElementById('d' + i);
+    d.className = 'pin-dot';
+    if (state === 'error') d.classList.add('error');
+    else if (i < pinEntry.length) d.classList.add('filled');
   }
-  function pinDelete() {
-    if (lockedOut) return;
-    pinEntry = pinEntry.slice(0, -1);
-    updateDots();
-  }
-  function updateDots(state) {
-    for (let i = 0; i < 4; i++) {
-      const dot = document.getElementById('d' + i);
-      dot.className = 'pin-dot';
-      if (state === 'error') dot.classList.add('error');
-      else if (i < pinEntry.length) dot.classList.add('filled');
-    }
-  }
-  function checkPin() {
-    if (pinEntry === CORRECT_PIN) {
-      document.getElementById('pinScreen').style.display = 'none';
-      const disc = document.getElementById('disclaimerScreen');
-      disc.style.display = 'flex';
+}
+
+function checkPin() {
+  if (pinEntry === CORRECT_PIN) {
+    document.getElementById('pinScreen').style.display = 'none';
+    document.getElementById('disclaimerScreen').style.display = 'flex';
+  } else {
+    attempts++;
+    updateDots('error');
+    pinEntry = "";
+    if (attempts >= MAX_ATTEMPTS) {
+      startLockout();
     } else {
-      attempts++;
-      updateDots('error');
-      pinEntry = "";
-      if (attempts >= MAX_ATTEMPTS) {
-        startLockout();
-      } else {
-        const left = MAX_ATTEMPTS - attempts;
-        document.getElementById('pinMessage').textContent =
-          `Incorrect PIN. ${left} attempt${left !== 1 ? 's' : ''} remaining.`;
-        setTimeout(() => { updateDots(); document.getElementById('pinMessage').textContent = ''; }, 800);
-      }
+      var left = MAX_ATTEMPTS - attempts;
+      document.getElementById('pinMessage').textContent = 'Incorrect PIN. ' + left + ' attempt' + (left !== 1 ? 's' : '') + ' remaining.';
+      setTimeout(function() { updateDots(); document.getElementById('pinMessage').textContent = ''; }, 800);
     }
   }
-  function startLockout() {
-    lockedOut = true;
-    let secs = LOCKOUT_SECS;
-    const msg = document.getElementById('pinMessage');
-    msg.textContent = `Too many attempts. Try again in ${secs}s.`;
-    const timer = setInterval(() => {
-      secs--;
-      msg.textContent = `Too many attempts. Try again in ${secs}s.`;
-      if (secs <= 0) {
-        clearInterval(timer);
-        lockedOut = false; attempts = 0; pinEntry = "";
-        updateDots(); msg.textContent = '';
+}
+
+function startLockout() {
+  lockedOut = true;
+  var secs = LOCKOUT_SECS;
+  var msg = document.getElementById('pinMessage');
+  msg.textContent = 'Too many attempts. Try again in ' + secs + 's.';
+  var t = setInterval(function() {
+    secs--;
+    msg.textContent = 'Too many attempts. Try again in ' + secs + 's.';
+    if (secs <= 0) { clearInterval(t); lockedOut = false; attempts = 0; pinEntry = ""; updateDots(); msg.textContent = ''; }
+  }, 1000);
+}
+
+document.getElementById('disclaimerAgreeBtn').addEventListener('click', function() {
+  document.getElementById('disclaimerScreen').style.display = 'none';
+});
+
+var imageBase64 = null;
+var currentSample = null;
+var imageMediaType = 'image/jpeg';
+
+var fileInput = document.getElementById('fileInput');
+var cameraInput = document.getElementById('cameraInput');
+var uploadZone = document.getElementById('uploadZone');
+var previewWrap = document.getElementById('previewWrap');
+var previewImg = document.getElementById('previewImg');
+var clearBtn = document.getElementById('clearBtn');
+var analyzeBtn = document.getElementById('analyzeBtn');
+var resultArea = document.getElementById('resultArea');
+
+uploadZone.addEventListener('dragover', function(e) { e.preventDefault(); uploadZone.style.borderColor = 'var(--accent)'; });
+uploadZone.addEventListener('dragleave', function() { uploadZone.style.borderColor = ''; });
+uploadZone.addEventListener('drop', function(e) {
+  e.preventDefault(); uploadZone.style.borderColor = '';
+  var file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) loadImage(file);
+});
+fileInput.addEventListener('change', function(e) { if (e.target.files[0]) loadImage(e.target.files[0]); });
+cameraInput.addEventListener('change', function(e) { if (e.target.files[0]) loadImage(e.target.files[0]); });
+clearBtn.addEventListener('click', clearImage);
+analyzeBtn.addEventListener('click', analyzePlacard);
+
+function loadImage(file) {
+  imageMediaType = 'image/jpeg';
+  currentSample = null;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      var MAX = 1024;
+      var w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else { w = Math.round(w * MAX / h); h = MAX; }
       }
-    }, 1000);
-  }
-
-  // ── APP LOGIC ──
-  let imageBase64 = null;
-  let currentSample = null;
-  let imageMediaType = 'image/jpeg';
-
-  let fileInput, cameraInput, uploadZone, previewWrap, previewImg, clearBtn, analyzeBtn, resultArea;
-
-  document.addEventListener('DOMContentLoaded', () => {
-    fileInput   = document.getElementById('fileInput');
-    cameraInput = document.getElementById('cameraInput');
-    uploadZone  = document.getElementById('uploadZone');
-    previewWrap = document.getElementById('previewWrap');
-    previewImg  = document.getElementById('previewImg');
-    clearBtn    = document.getElementById('clearBtn');
-    analyzeBtn  = document.getElementById('analyzeBtn');
-    resultArea  = document.getElementById('resultArea');
-
-    if (uploadZone) {
-      uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.style.borderColor = 'var(--accent)'; });
-      uploadZone.addEventListener('dragleave', () => uploadZone.style.borderColor = '');
-      uploadZone.addEventListener('drop', e => {
-        e.preventDefault(); uploadZone.style.borderColor = '';
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) loadImage(file);
-      });
-    }
-
-    if (fileInput)   fileInput.addEventListener('change',   e => { if (e.target.files[0]) loadImage(e.target.files[0]); });
-    if (cameraInput) cameraInput.addEventListener('change', e => { if (e.target.files[0]) loadImage(e.target.files[0]); });
-    if (clearBtn)    clearBtn.addEventListener('click',     clearImage);
-    if (analyzeBtn)  analyzeBtn.addEventListener('click',   analyzePlacard);
-
-    buildSamplesDropdown();
-  });
-
-  function loadImage(file) {
-    imageMediaType = 'image/jpeg';
-    const reader = new FileReader();
-    reader.onload = e => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const MAX = 1024;
-        let w = img.width, h = img.height;
-        if (w > MAX || h > MAX) {
-          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-          else { w = Math.round(w * MAX / h); h = MAX; }
-        }
-        canvas.width = w;
-        canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        const compressed = canvas.toDataURL('image/jpeg', 0.8);
-        imageBase64 = compressed.split(',')[1];
-        previewImg.src = compressed;
-        previewWrap.classList.remove('hidden');
-        analyzeBtn.disabled = false;
-        resultArea.innerHTML = '';
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function clearImage() {
-    imageBase64 = null;
-    currentSample = null;
-    previewImg.src = '';
-    previewWrap.classList.add('hidden');
-    analyzeBtn.disabled = true;
-    resultArea.innerHTML = '';
-    fileInput.value = '';
-    cameraInput.value = '';
-  }
-
-  async function analyzePlacard() {
-    if (!imageBase64 && !currentSample) return;
-    analyzeBtn.disabled = true;
-    resultArea.innerHTML = `
-      <div class="result-card">
-        <div class="loading-wrap">
-          <div class="loading-diamond"></div>
-          <div class="loading-text" id="loadingText">READING PLACARD...</div>
-        </div>
-      </div>`;
-
-    const messages = [
-      'READING PLACARD...',
-      'IDENTIFYING HAZARD CLASS...',
-      'CHECKING UN NUMBER...',
-      'ANALYZING SYMBOLS...',
-      'LOOKING UP MATERIALS...',
-      'PREPARING EMERGENCY INFO...',
-      'ALMOST DONE...'
-    ];
-    let msgIndex = 0;
-    const msgTimer = setInterval(() => {
-      msgIndex = (msgIndex + 1) % messages.length;
-      const el = document.getElementById('loadingText');
-      if (el) el.textContent = messages[msgIndex];
-    }, 600);
-
-    const prompt = `You are a DOT HAZMAT placard expert. Look carefully at this image and identify ALL HAZMAT placards you can see.
-
-Return ONLY raw JSON, absolutely no markdown, no backticks, no extra words before or after:
-{"detected":true,"placards":[{"hazardClass":"Class 3","hazardType":"Flammable Liquid","unNumber":"UN1993","commonExample":"Diesel, Paint Thinner","emergencyActions":"2-3 sentences on what to do if there is an accident","fullExplanation":"3-4 plain English sentences explaining this placard to a non-expert","dangerLevel":"LOW or MODERATE or HIGH or EXTREME","placard_color":"red","symbol_described":"flame symbol","news":[{"date":"2024","title":"Recent news headline about this material","summary":"2 sentence summary of the news item"},{"date":"2023","title":"Another relevant news item","summary":"2 sentence summary"}],"supplies":[{"category":"PPE","name":"Supply item name","description":"Why this is needed"},{"category":"CONTAINMENT","name":"Supply item name","description":"Why this is needed"},{"category":"DETECTION","name":"Supply item name","description":"Why this is needed"}],"history":[{"year":"Year of incident","title":"Name of notable incident","description":"2-3 sentences describing what happened and lessons learned"},{"year":"Year","title":"Another incident","description":"2-3 sentences"}]}]}
-
-Rules:
-- Always use the placards array even if there is only one placard
-- Each placard gets its own object in the array
-- dangerLevel must be exactly one of: LOW, MODERATE, HIGH, EXTREME
-- news: 2-3 recent real news items or regulatory updates about this specific material
-- supplies: 3-4 key supplies/equipment needed to handle this hazmat safely
-- history: 2-3 real notable historical accidents or spills involving this material
-- If no HAZMAT placard is visible return exactly: {"detected":false,"reason":"brief description of what you see instead"}`;
-
-    // Build message content - use text for samples, image for real photos
-    const messageContent = currentSample
-      ? [{ type: 'text', text: `This is a DOT HAZMAT placard with the following details:\nUN Number: ${currentSample.un}\nHazard Class: ${currentSample.class}\nMaterial: ${currentSample.name}\nPlacard Color: ${currentSample.color}\n\n${prompt}` }]
-      : [
-          { type: 'image', source: { type: 'base64', media_type: imageMediaType, data: imageBase64 } },
-          { type: 'text', text: prompt }
-        ];
-
-    try {
-      const res = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 3000,
-          messages: [{ role: 'user', content: messageContent }]
-        })
-      });
-
-      const data = await res.json();
-      if (!res.ok) { showError('API Error: ' + (data?.error?.message || JSON.stringify(data))); return; }
-      const text = data.content.map(b => b.text || '').join('');
-      let result = null;
-      try { result = JSON.parse(text.trim()); } catch(e1) {
-        try { result = JSON.parse(text.replace(/```json|```/gi,'').trim()); } catch(e2) {
-          try { const m = text.match(/\{[\s\S]*\}/); if(m) result = JSON.parse(m[0]); } catch(e3) {
-            showError('Could not parse response. Please try again.'); return;
-          }
-        }
-      }
-      if (!result) { showError('Empty response. Please try again.'); return; }
-      showResult(result);
-    } catch (err) {
-      clearInterval(msgTimer);
-      showError('Error: ' + err.message);
-    } finally {
-      clearInterval(msgTimer);
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      var compressed = canvas.toDataURL('image/jpeg', 0.8);
+      imageBase64 = compressed.split(',')[1];
+      previewImg.src = compressed;
+      previewWrap.classList.remove('hidden');
       analyzeBtn.disabled = false;
+      resultArea.innerHTML = '';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImage() {
+  imageBase64 = null; currentSample = null;
+  previewImg.src = '';
+  previewWrap.classList.add('hidden');
+  analyzeBtn.disabled = true;
+  resultArea.innerHTML = '';
+  fileInput.value = ''; cameraInput.value = '';
+}
+
+function analyzePlacard() {
+  if (!imageBase64 && !currentSample) return;
+  analyzeBtn.disabled = true;
+  resultArea.innerHTML = '<div class="result-card"><div class="loading-wrap"><div class="loading-diamond"></div><div class="loading-text" id="loadingText">READING PLACARD...</div></div></div>';
+  var msgs = ['READING PLACARD...','IDENTIFYING HAZARD CLASS...','CHECKING UN NUMBER...','ANALYZING SYMBOLS...','LOOKING UP MATERIALS...','PREPARING EMERGENCY INFO...','ALMOST DONE...'];
+  var mi = 0;
+  var msgTimer = setInterval(function() { mi = (mi+1) % msgs.length; var el = document.getElementById('loadingText'); if(el) el.textContent = msgs[mi]; }, 600);
+
+  var prompt = 'You are a DOT HAZMAT placard expert. Look carefully and identify ALL HAZMAT placards visible.\n\nReturn ONLY raw JSON, no markdown, no backticks:\n{"detected":true,"placards":[{"hazardClass":"Class 3","hazardType":"Flammable Liquid","unNumber":"UN1993","commonExample":"Diesel","emergencyActions":"2-3 sentences on accident response","fullExplanation":"3-4 plain English sentences for non-expert","dangerLevel":"LOW or MODERATE or HIGH or EXTREME","placard_color":"red","symbol_described":"flame","news":[{"date":"2024","title":"Headline","summary":"2 sentence summary"}],"supplies":[{"category":"PPE","name":"Item","description":"Why needed"}]}]}\n\nRules: always use placards array, dangerLevel must be LOW/MODERATE/HIGH/EXTREME, include 2-3 news items and 3-4 supplies. If no placard: {"detected":false,"reason":"description"}';
+
+  var messageContent = currentSample
+    ? [{ type: 'text', text: 'DOT HAZMAT placard details:\nUN: ' + currentSample.un + '\nClass: ' + currentSample.class + '\nMaterial: ' + currentSample.name + '\n\n' + prompt }]
+    : [{ type: 'image', source: { type: 'base64', media_type: imageMediaType, data: imageBase64 } }, { type: 'text', text: prompt }];
+
+  fetch('/api/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 3000, messages: [{ role: 'user', content: messageContent }] })
+  })
+  .then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
+  .then(function(r) {
+    clearInterval(msgTimer); analyzeBtn.disabled = false;
+    if (!r.ok) { showError('API Error: ' + (r.data.error && r.data.error.message ? r.data.error.message : JSON.stringify(r.data))); return; }
+    var text = r.data.content.map(function(b) { return b.text || ''; }).join('');
+    var result = null;
+    try { result = JSON.parse(text.trim()); } catch(e1) {
+      try { result = JSON.parse(text.replace(/```json|```/gi,'').trim()); } catch(e2) {
+        try { var m = text.match(/\{[\s\S]*\}/); if(m) result = JSON.parse(m[0]); } catch(e3) {
+          showError('Could not parse response. Please try again.'); return;
+        }
+      }
     }
-  }
-
-  function dangerColor(level) {
-    return { LOW: '#2ecc71', MODERATE: '#f5a800', HIGH: '#e07c3c', EXTREME: '#e03c3c' }[level] || '#f5a800';
-  }
-
-  function buildPlacardCard(p, index, total) {
-    const dc = dangerColor(p.dangerLevel);
-    const id = 'card' + index;
-
-    const newsHtml = p.news && p.news.length
-      ? p.news.map(n => `<div class="news-item"><div class="news-date">${n.date}</div><div class="news-title">${n.title}</div><div class="news-summary">${n.summary}</div></div>`).join('')
-      : '<div style="color:var(--muted);font-size:13px;padding:12px 0;">No recent news found for this material.</div>';
-
-    const suppliesHtml = p.supplies && p.supplies.length
-      ? p.supplies.map(s => `<div class="supply-item"><div class="supply-cat">${s.category}</div><div><div class="supply-name">${s.name}</div><div class="supply-desc">${s.description}</div></div></div>`).join('')
-      : '<div style="color:var(--muted);font-size:13px;padding:12px 0;">No supply data found.</div>';
-
-    const proLock = (feature, items) => `<div class="pro-lock"><div class="pro-lock-diamond"><span>⭐</span></div><div class="pro-lock-title">PREMIUM FEATURE</div><div class="pro-lock-text">Upgrade to What's That HAZMAT Pro to access ${feature} and more.</div><div class="pro-features-list">${items.map(i => `<div class="pro-feature-item">⭐ ${i}</div>`).join('')}</div><button class="pro-lock-btn" onclick="alert('Pro version coming soon!')">UPGRADE TO PRO</button></div>`;
-
-    return `
-      <div class="result-card" style="${index < total-1 ? 'margin-bottom:12px;' : ''}">
-        <div class="result-header">
-          <div class="result-status-dot" style="background:${dc}; box-shadow:0 0 8px ${dc}"></div>
-          <div class="result-header-label">${total > 1 ? 'PLACARD ' + (index+1) + ' OF ' + total : 'PLACARD IDENTIFIED'}</div>
-          ${p.hazardClass ? `<div class="result-class-badge">${p.hazardClass}</div>` : ''}
-        </div>
-        <div class="tabs-wrap">
-          <button class="tab-btn active" onclick="switchTab('${id}','overview',this)">OVERVIEW</button>
-          <button class="tab-btn" onclick="switchTab('${id}','news',this)">📰 NEWS</button>
-          <button class="tab-btn" onclick="switchTab('${id}','supplies',this)">🛒 SUPPLIES</button>
-          <button class="tab-btn pro-tab" onclick="switchTab('${id}','history',this)">💥 HISTORY ⭐</button>
-          <button class="tab-btn pro-tab" onclick="switchTab('${id}','erg',this)">📖 ERG ⭐</button>
-          <button class="tab-btn pro-tab" onclick="switchTab('${id}','nearby',this)">📍 NEARBY ⭐</button>
-          <button class="tab-btn pro-tab" onclick="switchTab('${id}','comply',this)">📋 COMPLY ⭐</button>
-        </div>
-        <div id="${id}-overview" class="tab-panel active">
-          <div class="result-main-title">${p.hazardType || 'Hazardous Material'}</div>
-          <div class="result-text">${p.fullExplanation || ''}</div>
-          <div class="info-grid">
-            ${p.unNumber      ? `<div class="info-cell"><div class="info-cell-label">UN/NA NUMBER</div><div class="info-cell-value">${p.unNumber}</div></div>` : ''}
-            ${p.commonExample ? `<div class="info-cell"><div class="info-cell-label">COMMON EXAMPLES</div><div class="info-cell-value">${p.commonExample}</div></div>` : ''}
-            ${p.dangerLevel   ? `<div class="info-cell"><div class="info-cell-label">DANGER LEVEL</div><div class="info-cell-value" style="color:${dc}">${p.dangerLevel}</div></div>` : ''}
-            ${p.placard_color ? `<div class="info-cell"><div class="info-cell-label">PLACARD COLOR</div><div class="info-cell-value">${p.placard_color}</div></div>` : ''}
-          </div>
-          ${p.emergencyActions ? `<div style="margin-top:16px;padding:14px;background:rgba(224,60,60,0.07);border:1px solid rgba(224,60,60,0.2);border-radius:2px;"><div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:1px;color:#a05050;margin-bottom:9px;font-weight:600;">🚨 IF THERE IS AN ACCIDENT</div><div style="font-size:17px;color:#c8a8a8;line-height:1.7;">${p.emergencyActions}</div></div>` : ''}
-        </div>
-        <div id="${id}-news" class="tab-panel">${newsHtml}</div>
-        <div id="${id}-supplies" class="tab-panel">${suppliesHtml}</div>
-        <div id="${id}-history" class="tab-panel">${proLock('Historic Accidents', ['Notable spills & disasters', 'Lessons learned', 'Casualty & damage reports'])}</div>
-        <div id="${id}-erg" class="tab-panel">${proLock('ERG Data', ['Full Emergency Response Guidebook', 'Isolation distances', 'Protective action zones'])}</div>
-        <div id="${id}-nearby" class="tab-panel">${proLock('Nearby Facilities', ['Hospitals & trauma centers', 'Fire stations & HAZMAT teams', 'Decontamination sites'])}</div>
-        <div id="${id}-comply" class="tab-panel">${proLock('Regulatory Compliance', ['DOT transport rules', 'OSHA workplace requirements', 'EPA reporting obligations'])}</div>
-      </div>`;
-  }
-
-  function switchTab(cardId, tabName, btn) {
-    const card = document.getElementById(cardId + '-' + tabName).closest('.result-card');
-    card.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    card.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(cardId + '-' + tabName).classList.add('active');
-    btn.classList.add('active');
-  }
-
-  function showResult(result) {
-    if (!result.detected) { showNotDetected(result.reason); return; }
-    const placards = result.placards
-      ? result.placards
-      : [{ hazardClass: result.hazardClass, hazardType: result.hazardType, unNumber: result.unNumber,
-           commonExample: result.commonExample, emergencyActions: result.emergencyActions,
-           fullExplanation: result.fullExplanation, dangerLevel: result.dangerLevel,
-           placard_color: result.placard_color }];
-    const count = placards.length;
-    let html = '';
-    if (count > 1) {
-      html += `<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;padding:8px 12px;border:1px solid rgba(245,168,0,0.3);border-radius:2px;background:rgba(245,168,0,0.07);text-align:center;">⚠ ${count} PLACARDS DETECTED IN THIS IMAGE</div>`;
-    }
-    placards.forEach((p, i) => { html += buildPlacardCard(p, i, count); });
-
-    resultArea.innerHTML = html;
-  }
-
-  // ── SAMPLES ──
-  const SAMPLES = [
-    { name: 'Flammable Liquid',          un: 'UN1993', class: '3',   color: '#cc2200', textColor: '#fff' },
-    { name: 'Gasoline',                  un: 'UN1203', class: '3',   color: '#cc2200', textColor: '#fff' },
-    { name: 'Aviation Fuel',             un: 'UN1863', class: '3',   color: '#cc2200', textColor: '#fff' },
-    { name: 'Diesel Fuel',               un: 'UN1202', class: '3',   color: '#cc2200', textColor: '#fff' },
-    { name: 'Flammable Gas',             un: 'UN1954', class: '2.1', color: '#cc2200', textColor: '#fff' },
-    { name: 'Non-Flammable Gas',         un: 'UN1956', class: '2.2', color: '#1a7a3c', textColor: '#fff' },
-    { name: 'Toxic Gas',                 un: 'UN1017', class: '2.3', color: '#ffffff', textColor: '#111' },
-    { name: 'Explosives 1.1',            un: 'UN0004', class: '1',   color: '#f5c400', textColor: '#000' },
-    { name: 'Flammable Solid',           un: 'UN1325', class: '4.1', color: '#ff4400', textColor: '#fff' },
-    { name: 'Spontaneously Combustible', un: 'UN2845', class: '4.2', color: '#ff4400', textColor: '#fff' },
-    { name: 'Dangerous When Wet',        un: 'UN3170', class: '4.3', color: '#1155cc', textColor: '#fff' },
-    { name: 'Oxidizer',                  un: 'UN1479', class: '5.1', color: '#f5c400', textColor: '#000' },
-    { name: 'Hydrogen Peroxide',         un: 'UN2014', class: '5.1', color: '#f5c400', textColor: '#000' },
-    { name: 'Poison / Toxic',            un: 'UN2810', class: '6.1', color: '#ffffff', textColor: '#111' },
-    { name: 'Infectious Substance',      un: 'UN2814', class: '6.2', color: '#ffffff', textColor: '#111' },
-    { name: 'Radioactive I',             un: 'UN2910', class: '7',   color: '#f5c400', textColor: '#000' },
-    { name: 'Corrosive Liquid',          un: 'UN1760', class: '8',   color: '#111111', textColor: '#fff' },
-    { name: 'Sulfuric Acid',             un: 'UN1830', class: '8',   color: '#111111', textColor: '#fff' },
-    { name: 'Potassium Hydroxide',       un: 'UN1814', class: '8',   color: '#111111', textColor: '#fff' },
-    { name: 'Miscellaneous',             un: 'UN3082', class: '9',   color: '#ffffff', textColor: '#111' },
-  ];
-
-  function buildSamplesDropdown() {
-    const dd = document.getElementById('samplesDropdown');
-    dd.innerHTML = SAMPLES.map((s, i) => {
-      const svg = buildPlacardSVG(s);
-      const svgUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-      return `
-        <div class="sample-item" onclick="loadSample(${i})">
-          <img src="${svgUrl}" style="width:38px;height:38px;object-fit:contain;flex-shrink:0;">
-          <div class="sample-info">
-            <div class="sample-name">${s.name}</div>
-            <div class="sample-un">${s.un} · CLASS ${s.class}</div>
-          </div>
-        </div>`;
-    }).join('');
-  }
-  function toggleSamples() {
-    const dd = document.getElementById('samplesDropdown');
-    dd.classList.toggle('open');
-  }
-
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.samples-wrap')) {
-      document.getElementById('samplesDropdown').classList.remove('open');
-    }
+    if (!result) { showError('Empty response. Please try again.'); return; }
+    showResult(result);
+  })
+  .catch(function(err) {
+    clearInterval(msgTimer); analyzeBtn.disabled = false;
+    showError(getFriendlyError(err.message));
   });
+}
 
-  // SVG symbol paths for each hazard class
-  function getSymbolSVG(cls, color) {
-    const c = color;
-    switch(cls.toString()) {
-      case '3': case '2.1': case '4.1':
-        // Flame
-        return `<g transform="translate(200,140)">
-          <path d="M0,-45 C5,-30 20,-20 15,-5 C25,-15 20,-35 30,-40 C35,-20 25,0 30,15 C40,0 38,-20 45,-30 C55,0 45,30 30,45 C35,35 32,20 25,15 C28,30 20,42 0,45 C-20,42 -28,30 -25,15 C-32,20 -35,35 -30,45 C-45,30 -55,0 -45,-30 C-38,-20 -40,0 -30,15 C-25,0 -35,-20 -30,-40 C-20,-35 -25,-15 -15,-5 C-20,-20 -5,-30 0,-45 Z" fill="${c}" stroke="${c === '#fff' ? 'rgba(255,255,255,0.3)' : 'none'}" stroke-width="1"/>
-          <rect x="-25" y="30" width="50" height="8" rx="2" fill="${c}"/>
-        </g>`;
-      case '5.1': case '5.2':
-        // Flame over circle (oxidizer)
-        return `<g transform="translate(200,140)">
-          <circle cx="0" cy="20" r="28" fill="none" stroke="${c}" stroke-width="6"/>
-          <path d="M0,-45 C5,-30 18,-18 13,-5 C22,-14 18,-32 26,-38 C30,-18 22,0 26,13 C34,-2 32,-20 38,-28 C46,-2 38,24 26,38 C-26,38 -46,-2 -38,-28 C-32,-20 -34,-2 -26,13 C-22,0 -30,-18 -26,-38 C-18,-32 -22,-14 -13,-5 C-18,-18 -5,-30 0,-45 Z" fill="${c}"/>
-        </g>`;
-      case '8':
-        // Corrosive - two test tubes dripping on surfaces
-        return `<g transform="translate(200,145)">
-          <rect x="-42" y="-40" width="16" height="38" rx="3" fill="none" stroke="${c}" stroke-width="4"/>
-          <path d="M-42,0 Q-50,15 -46,28 Q-40,38 -34,28 Q-30,15 -38,0" fill="${c}" opacity="0.7"/>
-          <rect x="26" y="-40" width="16" height="38" rx="3" fill="none" stroke="${c}" stroke-width="4"/>
-          <path d="M26,0 Q18,15 22,28 Q28,38 34,28 Q38,15 30,0" fill="${c}" opacity="0.7"/>
-          <rect x="-55" y="28" width="38" height="8" rx="2" fill="${c}"/>
-          <rect x="17" y="28" width="38" height="8" rx="2" fill="${c}"/>
-          <path d="M-38,8 L-10,35 M-10,8 L-38,35" stroke="${c}" stroke-width="4" opacity="0.5"/>
-          <path d="M10,8 L38,35 M38,8 L10,35" stroke="${c}" stroke-width="4" opacity="0.5"/>
-        </g>`;
-      case '1':
-        // Explosion burst
-        return `<g transform="translate(200,145)">
-          <circle cx="0" cy="0" r="22" fill="${c}"/>
-          ${Array.from({length:12},(_,i)=>{const a=i*30*Math.PI/180;const r1=26;const r2=44;return `<line x1="${Math.cos(a)*r1}" y1="${Math.sin(a)*r1}" x2="${Math.cos(a)*r2}" y2="${Math.sin(a)*r2}" stroke="${c}" stroke-width="5" stroke-linecap="round"/>`}).join('')}
-          <circle cx="0" cy="0" r="14" fill="${c === '#fff' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'}"/>
-        </g>`;
-      case '2.2':
-        // Gas cylinder
-        return `<g transform="translate(200,145)">
-          <rect x="-22" y="-42" width="44" height="68" rx="10" fill="none" stroke="${c}" stroke-width="5"/>
-          <rect x="-12" y="-52" width="24" height="14" rx="4" fill="none" stroke="${c}" stroke-width="4"/>
-          <line x1="0" y1="-38" x2="0" y2="10" stroke="${c}" stroke-width="3" opacity="0.4"/>
-          <ellipse cx="0" cy="26" rx="22" ry="6" fill="none" stroke="${c}" stroke-width="3" opacity="0.5"/>
-        </g>`;
-      case '2.3': case '6.1':
-        // Skull and crossbones
-        return `<g transform="translate(200,148)">
-          <circle cx="0" cy="-18" r="28" fill="none" stroke="${c}" stroke-width="5"/>
-          <circle cx="-10" cy="-22" r="7" fill="${c}"/>
-          <circle cx="10" cy="-22" r="7" fill="${c}"/>
-          <path d="M-8,0 L-8,16 L8,16 L8,0" fill="none" stroke="${c}" stroke-width="5" stroke-linejoin="round"/>
-          <line x1="-3" y1="8" x2="-3" y2="16" stroke="${c === '#fff' ? '#000' : '#fff'}" stroke-width="3"/>
-          <line x1="3" y1="8" x2="3" y2="16" stroke="${c === '#fff' ? '#000' : '#fff'}" stroke-width="3"/>
-          <line x1="-36" y1="22" x2="36" y2="38" stroke="${c}" stroke-width="5" stroke-linecap="round"/>
-          <line x1="36" y1="22" x2="-36" y2="38" stroke="${c}" stroke-width="5" stroke-linecap="round"/>
-        </g>`;
-      case '7':
-        // Radioactive trefoil
-        return `<g transform="translate(200,145)">
-          <circle cx="0" cy="0" r="10" fill="${c}"/>
-          ${[0,120,240].map(a=>{const r=a*Math.PI/180;return `<path d="M${Math.cos(r)*12},${Math.sin(r)*12} A38,38 0 0,1 ${Math.cos((a+60)*Math.PI/180)*38},${Math.sin((a+60)*Math.PI/180)*38} A38,38 0 0,1 ${Math.cos((a+60)*Math.PI/180)*12},${Math.sin((a+60)*Math.PI/180)*12} Z" fill="${c}"/>`}).join('')}
-        </g>`;
-      case '6.2':
-        // Biohazard
-        return `<g transform="translate(200,145)">
-          <text x="0" y="15" font-size="72" text-anchor="middle" fill="${c}">☣</text>
-        </g>`;
-      case '4': case '4.2':
-        // Flame with W underneath (dangerous when wet)
-        return `<g transform="translate(200,145)">
-          <path d="M0,-42 C5,-28 18,-18 13,-5 C22,-14 18,-30 26,-36 C30,-16 22,2 26,14 C34,0 32,-18 38,-26 C46,0 38,26 26,38 L-26,38 C-38,26 -46,0 -38,-26 C-32,-18 -34,0 -26,14 C-22,2 -30,-16 -26,-36 C-18,-30 -22,-14 -13,-5 C-18,-18 -5,-28 0,-42 Z" fill="${c}"/>
-          <text x="0" y="52" font-size="28" font-weight="bold" text-anchor="middle" fill="${c}" font-family="Arial">W</text>
-        </g>`;
-      default:
-        return `<text x="200" y="155" font-size="52" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="${c}" font-family="Arial">${cls}</text>`;
-    }
+function getFriendlyError(msg) {
+  var m = (msg||'').toLowerCase();
+  if (m.indexOf('fetch') >= 0 || m.indexOf('network') >= 0 || m.indexOf('failed') >= 0) return 'Connection failed. Check your internet and try again.';
+  if (m.indexOf('parse') >= 0 || m.indexOf('json') >= 0) return 'The AI returned an unexpected response. Please try again.';
+  if (m.indexOf('429') >= 0 || m.indexOf('rate') >= 0) return 'Too many requests. Please wait a moment and try again.';
+  return msg || 'An error occurred. Please try again.';
+}
+
+function showError(msg) {
+  resultArea.innerHTML = '<div class="result-card"><div class="error-wrap"><div class="error-icon"><span>!</span></div><div class="error-text">' + msg + '</div></div><div style="padding:0 18px 16px;"><button class="try-again-btn" onclick="clearImage()">&#8634; &nbsp;TRY AGAIN</button></div></div>';
+}
+
+function showNotDetected(reason) {
+  resultArea.innerHTML = '<div class="result-card"><div class="result-header"><div class="result-status-dot" style="background:var(--danger)"></div><div class="result-header-label">SCAN RESULT</div></div><div class="error-wrap"><div class="error-icon"><span>!</span></div><div class="error-text">' + (reason || 'No HAZMAT placard detected. Ensure the full diamond is visible, well-lit, and in focus.') + '</div></div><div style="padding:0 18px 16px;"><button class="try-again-btn" onclick="clearImage()">&#8634; &nbsp;TRY AGAIN</button></div></div>';
+}
+
+function dangerColor(l) {
+  var map = {LOW:'#2ecc71',MODERATE:'#f5a800',HIGH:'#e07c3c',EXTREME:'#e03c3c'};
+  return map[l] || '#f5a800';
+}
+
+function proLock(feat, items) {
+  return '<div class="pro-lock"><div class="pro-lock-diamond"><span>&#11088;</span></div><div class="pro-lock-title">PREMIUM FEATURE</div><div class="pro-lock-text">Upgrade to Pro to access ' + feat + ' and more.</div><div class="pro-features-list">' + items.map(function(i){ return '<div class="pro-feature-item">&#11088; ' + i + '</div>'; }).join('') + '</div><button class="pro-lock-btn" onclick="alert(\'Pro version coming soon!\')">UPGRADE TO PRO</button></div>';
+}
+
+function switchTab(cardId, tabName, btn) {
+  var card = document.getElementById(cardId + '-' + tabName).closest('.result-card');
+  card.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  card.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById(cardId + '-' + tabName).classList.add('active');
+  btn.classList.add('active');
+}
+
+function buildCard(p, index, total) {
+  var dc = dangerColor(p.dangerLevel);
+  var id = 'card' + index;
+  var newsHtml = (p.news && p.news.length) ? p.news.map(function(n){ return '<div class="news-item"><div class="news-date">'+n.date+'</div><div class="news-title">'+n.title+'</div><div class="news-summary">'+n.summary+'</div></div>'; }).join('') : '<div style="color:var(--muted);font-size:13px;padding:12px 0;">No recent news found.</div>';
+  var supHtml = (p.supplies && p.supplies.length) ? p.supplies.map(function(s){ return '<div class="supply-item"><div class="supply-cat">'+s.category+'</div><div><div class="supply-name">'+s.name+'</div><div class="supply-desc">'+s.description+'</div></div></div>'; }).join('') : '<div style="color:var(--muted);font-size:13px;padding:12px 0;">No supply data found.</div>';
+  var html = '<div class="result-card" style="'+(index<total-1?'margin-bottom:12px;':'')+'">';
+  html += '<div class="result-header"><div class="result-status-dot" style="background:'+dc+';box-shadow:0 0 8px '+dc+'"></div><div class="result-header-label">'+(total>1?'PLACARD '+(index+1)+' OF '+total:'PLACARD IDENTIFIED')+'</div>'+(p.hazardClass?'<div class="result-class-badge">'+p.hazardClass+'</div>':'')+' </div>';
+  html += '<div class="tabs-wrap">';
+  html += '<button class="tab-btn active" onclick="switchTab(\''+id+'\',\'overview\',this)">OVERVIEW</button>';
+  html += '<button class="tab-btn" onclick="switchTab(\''+id+'\',\'news\',this)">&#128240; NEWS</button>';
+  html += '<button class="tab-btn" onclick="switchTab(\''+id+'\',\'supplies\',this)">&#128722; SUPPLIES</button>';
+  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'history\',this)">&#128165; HISTORY &#11088;</button>';
+  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'erg\',this)">&#128216; ERG &#11088;</button>';
+  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'nearby\',this)">&#128205; NEARBY &#11088;</button>';
+  html += '<button class="tab-btn pro-tab" onclick="switchTab(\''+id+'\',\'comply\',this)">&#128203; COMPLY &#11088;</button>';
+  html += '</div>';
+  html += '<div id="'+id+'-overview" class="tab-panel active">';
+  html += '<div class="result-main-title">'+(p.hazardType||'Hazardous Material')+'</div>';
+  html += '<div class="result-text">'+(p.fullExplanation||'')+'</div>';
+  html += '<div class="info-grid">';
+  if(p.unNumber) html += '<div class="info-cell"><div class="info-cell-label">UN/NA NUMBER</div><div class="info-cell-value">'+p.unNumber+'</div></div>';
+  if(p.commonExample) html += '<div class="info-cell"><div class="info-cell-label">COMMON EXAMPLES</div><div class="info-cell-value">'+p.commonExample+'</div></div>';
+  if(p.dangerLevel) html += '<div class="info-cell"><div class="info-cell-label">DANGER LEVEL</div><div class="info-cell-value" style="color:'+dc+'">'+p.dangerLevel+'</div></div>';
+  if(p.placard_color) html += '<div class="info-cell"><div class="info-cell-label">PLACARD COLOR</div><div class="info-cell-value">'+p.placard_color+'</div></div>';
+  html += '</div>';
+  if(p.emergencyActions) html += '<div style="margin-top:16px;padding:14px;background:rgba(224,60,60,0.07);border:1px solid rgba(224,60,60,0.2);border-radius:2px;"><div style="font-family:\'IBM Plex Mono\',monospace;font-size:13px;letter-spacing:1px;color:#a05050;margin-bottom:9px;font-weight:600;">&#128680; IF THERE IS AN ACCIDENT</div><div style="font-size:17px;color:#c8a8a8;line-height:1.7;">'+p.emergencyActions+'</div></div>';
+  html += '</div>';
+  html += '<div id="'+id+'-news" class="tab-panel">'+newsHtml+'</div>';
+  html += '<div id="'+id+'-supplies" class="tab-panel">'+supHtml+'</div>';
+  html += '<div id="'+id+'-history" class="tab-panel">'+proLock('Historic Accidents',['Notable spills & disasters','Lessons learned','Casualty & damage reports'])+'</div>';
+  html += '<div id="'+id+'-erg" class="tab-panel">'+proLock('ERG Data',['Full Emergency Response Guidebook','Isolation distances','Protective action zones'])+'</div>';
+  html += '<div id="'+id+'-nearby" class="tab-panel">'+proLock('Nearby Facilities',['Hospitals & trauma centers','Fire stations & HAZMAT teams','Decontamination sites'])+'</div>';
+  html += '<div id="'+id+'-comply" class="tab-panel">'+proLock('Regulatory Compliance',['DOT transport rules','OSHA requirements','EPA obligations'])+'</div>';
+  html += '</div>';
+  return html;
+}
+
+function showResult(result) {
+  if (!result.detected) { showNotDetected(result.reason); return; }
+  var placards = result.placards ? result.placards : [result];
+  var count = placards.length;
+  var html = '';
+  if (count > 1) html += '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;padding:8px 12px;border:1px solid rgba(245,168,0,0.3);border-radius:2px;background:rgba(245,168,0,0.07);text-align:center;">&#9888; ' + count + ' PLACARDS DETECTED</div>';
+  for (var i = 0; i < placards.length; i++) { html += buildCard(placards[i], i, count); }
+  resultArea.innerHTML = html;
+}
+
+var SAMPLES = [
+  {name:'Flammable Liquid',un:'UN1993',class:'3',color:'#cc2200',textColor:'#fff'},
+  {name:'Gasoline',un:'UN1203',class:'3',color:'#cc2200',textColor:'#fff'},
+  {name:'Aviation Fuel',un:'UN1863',class:'3',color:'#cc2200',textColor:'#fff'},
+  {name:'Diesel Fuel',un:'UN1202',class:'3',color:'#cc2200',textColor:'#fff'},
+  {name:'Flammable Gas',un:'UN1954',class:'2.1',color:'#cc2200',textColor:'#fff'},
+  {name:'Non-Flammable Gas',un:'UN1956',class:'2.2',color:'#1a7a3c',textColor:'#fff'},
+  {name:'Toxic Gas',un:'UN1017',class:'2.3',color:'#ffffff',textColor:'#111'},
+  {name:'Explosives 1.1',un:'UN0004',class:'1',color:'#f5c400',textColor:'#000'},
+  {name:'Flammable Solid',un:'UN1325',class:'4.1',color:'#ff4400',textColor:'#fff'},
+  {name:'Spontaneously Combustible',un:'UN2845',class:'4.2',color:'#ff4400',textColor:'#fff'},
+  {name:'Dangerous When Wet',un:'UN3170',class:'4.3',color:'#1155cc',textColor:'#fff'},
+  {name:'Oxidizer',un:'UN1479',class:'5.1',color:'#f5c400',textColor:'#000'},
+  {name:'Hydrogen Peroxide',un:'UN2014',class:'5.1',color:'#f5c400',textColor:'#000'},
+  {name:'Poison / Toxic',un:'UN2810',class:'6.1',color:'#ffffff',textColor:'#111'},
+  {name:'Infectious Substance',un:'UN2814',class:'6.2',color:'#ffffff',textColor:'#111'},
+  {name:'Radioactive I',un:'UN2910',class:'7',color:'#f5c400',textColor:'#000'},
+  {name:'Corrosive Liquid',un:'UN1760',class:'8',color:'#111111',textColor:'#fff'},
+  {name:'Sulfuric Acid',un:'UN1830',class:'8',color:'#111111',textColor:'#fff'},
+  {name:'Potassium Hydroxide',un:'UN1814',class:'8',color:'#111111',textColor:'#fff'},
+  {name:'Miscellaneous',un:'UN3082',class:'9',color:'#ffffff',textColor:'#111'}
+];
+
+function getSymSVG(cls,c) {
+  var s = cls.toString();
+  if(s==='3'||s==='2.1'||s==='4.1') return '<g transform="translate(200,140)"><path d="M0,-45 C5,-30 20,-20 15,-5 C25,-15 20,-35 30,-40 C35,-20 25,0 30,15 C40,0 38,-20 45,-30 C55,0 45,30 30,45 C35,35 32,20 25,15 C28,30 20,42 0,45 C-20,42 -28,30 -25,15 C-32,20 -35,35 -30,45 C-45,30 -55,0 -45,-30 C-38,-20 -40,0 -30,15 C-25,0 -35,-20 -30,-40 C-20,-35 -25,-15 -15,-5 C-20,-20 -5,-30 0,-45 Z" fill="'+c+'"/><rect x="-25" y="30" width="50" height="8" rx="2" fill="'+c+'"/></g>';
+  if(s==='5.1'||s==='5.2') return '<g transform="translate(200,140)"><circle cx="0" cy="20" r="28" fill="none" stroke="'+c+'" stroke-width="6"/><path d="M0,-45 C5,-30 18,-18 13,-5 C22,-14 18,-32 26,-38 C30,-18 22,0 26,13 C34,-2 32,-20 38,-28 C46,-2 38,24 26,38 C-26,38 -46,-2 -38,-28 C-32,-20 -34,-2 -26,13 C-22,0 -30,-18 -26,-38 C-18,-32 -22,-14 -13,-5 C-18,-18 -5,-30 0,-45 Z" fill="'+c+'"/></g>';
+  if(s==='8') return '<g transform="translate(200,145)"><rect x="-42" y="-40" width="16" height="38" rx="3" fill="none" stroke="'+c+'" stroke-width="4"/><path d="M-42,0 Q-50,15 -46,28 Q-40,38 -34,28 Q-30,15 -38,0" fill="'+c+'" opacity="0.7"/><rect x="26" y="-40" width="16" height="38" rx="3" fill="none" stroke="'+c+'" stroke-width="4"/><path d="M26,0 Q18,15 22,28 Q28,38 34,28 Q38,15 30,0" fill="'+c+'" opacity="0.7"/></g>';
+  if(s==='2.3'||s==='6.1') return '<g transform="translate(200,148)"><circle cx="0" cy="-18" r="28" fill="none" stroke="'+c+'" stroke-width="5"/><circle cx="-10" cy="-22" r="7" fill="'+c+'"/><circle cx="10" cy="-22" r="7" fill="'+c+'"/><line x1="-36" y1="22" x2="36" y2="38" stroke="'+c+'" stroke-width="5" stroke-linecap="round"/><line x1="36" y1="22" x2="-36" y2="38" stroke="'+c+'" stroke-width="5" stroke-linecap="round"/></g>';
+  if(s==='7') return '<g transform="translate(200,145)"><circle cx="0" cy="0" r="10" fill="'+c+'"/><path d="M0,-12 A38,38 0 0,1 32.9,19 A38,38 0 0,1 -32.9,19 A38,38 0 0,1 0,-12 Z" fill="none" stroke="'+c+'" stroke-width="14"/></g>';
+  if(s==='1') return '<g transform="translate(200,145)"><circle cx="0" cy="0" r="22" fill="'+c+'"/><line x1="0" y1="-28" x2="0" y2="-44" stroke="'+c+'" stroke-width="6" stroke-linecap="round"/><line x1="24.2" y1="-14" x2="38.1" y2="-22" stroke="'+c+'" stroke-width="6" stroke-linecap="round"/><line x1="24.2" y1="14" x2="38.1" y2="22" stroke="'+c+'" stroke-width="6" stroke-linecap="round"/><line x1="0" y1="28" x2="0" y2="44" stroke="'+c+'" stroke-width="6" stroke-linecap="round"/><line x1="-24.2" y1="14" x2="-38.1" y2="22" stroke="'+c+'" stroke-width="6" stroke-linecap="round"/><line x1="-24.2" y1="-14" x2="-38.1" y2="-22" stroke="'+c+'" stroke-width="6" stroke-linecap="round"/></g>';
+  return '<text x="200" y="158" font-size="48" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="'+c+'" font-family="Arial">'+s+'</text>';
+}
+
+function buildSVG(s) {
+  var cx=200,cy=200,oR=188,iR=172,bR=148;
+  var op=cx+','+(cy-oR)+' '+(cx+oR)+','+cy+' '+cx+','+(cy+oR)+' '+(cx-oR)+','+cy;
+  var ip=cx+','+(cy-iR)+' '+(cx+iR)+','+cy+' '+cx+','+(cy+iR)+' '+(cx-iR)+','+cy;
+  var bp=cx+','+(cy-bR)+' '+(cx+bR)+','+cy+' '+cx+','+(cy+bR)+' '+(cx-bR)+','+cy;
+  var tc=s.textColor; var un=s.un.replace('UN','');
+  var bW=170,bH=58,bX=cx-bW/2,bY=cy+12;
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">'
+    +'<rect width="400" height="400" fill="#f0f0f0"/>'
+    +'<polygon points="'+op+'" fill="white" stroke="#555" stroke-width="3"/>'
+    +'<polygon points="'+ip+'" fill="'+s.color+'"/>'
+    +'<polygon points="'+bp+'" fill="none" stroke="'+(tc==='#fff'?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.4)')+'" stroke-width="3"/>'
+    +getSymSVG(s.class,tc)
+    +'<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" fill="white"/>'
+    +'<text x="'+cx+'" y="'+(bY+bH/2+2)+'" font-size="36" font-weight="bold" font-family="Arial" text-anchor="middle" dominant-baseline="middle" fill="#111">'+un+'</text>'
+    +'<text x="'+cx+'" y="'+(cy+140)+'" font-size="28" font-weight="bold" font-family="Arial" text-anchor="middle" dominant-baseline="middle" fill="'+tc+'">'+s.class+'</text>'
+    +'</svg>';
+}
+
+function buildSamplesDropdown() {
+  var dd = document.getElementById('samplesDropdown');
+  if (!dd) return;
+  var html = '';
+  for (var i = 0; i < SAMPLES.length; i++) {
+    var s = SAMPLES[i];
+    var url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(buildSVG(s));
+    html += '<div class="sample-item" onclick="loadSample('+i+')"><img src="'+url+'" style="width:38px;height:38px;object-fit:contain;flex-shrink:0;"><div><div class="sample-name">'+s.name+'</div><div class="sample-un">'+s.un+' &middot; CLASS '+s.class+'</div></div></div>';
   }
+  dd.innerHTML = html;
+}
 
-  function buildPlacardSVG(s) {
-    const sz = 400;
-    const cx = sz/2, cy = sz/2;
-    const outerR = 188;
-    const innerR = 172;
-    const borderR = 148;
+function toggleSamples() {
+  document.getElementById('samplesDropdown').classList.toggle('open');
+}
 
-    // Diamond points
-    const outerPts = `${cx},${cy-outerR} ${cx+outerR},${cy} ${cx},${cy+outerR} ${cx-outerR},${cy}`;
-    const innerPts = `${cx},${cy-innerR} ${cx+innerR},${cy} ${cx},${cy+innerR} ${cx-innerR},${cy}`;
-    const borderPts = `${cx},${cy-borderR} ${cx+borderR},${cy} ${cx},${cy+borderR} ${cx-borderR},${cy}`;
-
-    const tc = s.textColor;
-    const unNum = s.un.replace('UN','');
-
-    // White number box dimensions
-    const boxW = 170, boxH = 58;
-    const boxX = cx - boxW/2;
-    const boxY = cy + 12;
-
-    const symbolColor = s.textColor;
-
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}">
-      <rect width="${sz}" height="${sz}" fill="#f0f0f0"/>
-      <!-- Outer white diamond -->
-      <polygon points="${outerPts}" fill="white" stroke="#555" stroke-width="3"/>
-      <!-- Main color fill -->
-      <polygon points="${innerPts}" fill="${s.color}"/>
-      <!-- Inner border line -->
-      <polygon points="${borderPts}" fill="none" stroke="${tc === '#fff' ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.4)'}" stroke-width="3"/>
-      <!-- Symbol -->
-      ${getSymbolSVG(s.class, symbolColor)}
-      <!-- UN number white box -->
-      <rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" fill="white" stroke="${tc === '#fff' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.2)'}" stroke-width="2"/>
-      <!-- UN number text -->
-      <text x="${cx}" y="${boxY + boxH/2 + 2}" font-size="36" font-weight="bold" font-family="Arial, sans-serif" text-anchor="middle" dominant-baseline="middle" fill="#111">${unNum}</text>
-      <!-- Class number bottom -->
-      <text x="${cx}" y="${cy + 140}" font-size="28" font-weight="bold" font-family="Arial, sans-serif" text-anchor="middle" dominant-baseline="middle" fill="${tc}">${s.class}</text>
-    </svg>`;
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.samples-wrap')) {
+    var dd = document.getElementById('samplesDropdown');
+    if (dd) dd.classList.remove('open');
   }
+});
 
-  function loadSample(index) {
-    const s = SAMPLES[index];
-    document.getElementById('samplesDropdown').classList.remove('open');
-    currentSample = s;
-    imageBase64 = null;
+function loadSample(i) {
+  var s = SAMPLES[i];
+  document.getElementById('samplesDropdown').classList.remove('open');
+  currentSample = s;
+  imageBase64 = null;
+  previewImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(buildSVG(s));
+  previewWrap.classList.remove('hidden');
+  analyzeBtn.disabled = false;
+  resultArea.innerHTML = '';
+}
 
-    // Show SVG preview
-    const svgStr = buildPlacardSVG(s);
-    const svgUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
-    document.getElementById('previewImg').src = svgUrl;
-    document.getElementById('previewWrap').classList.remove('hidden');
-    document.getElementById('analyzeBtn').disabled = false;
-    document.getElementById('resultArea').innerHTML = '';
-  }
-
-  // Disclaimer
-  document.getElementById('disclaimerAgreeBtn').addEventListener('click', () => {
-    document.getElementById('disclaimerScreen').style.display = 'none';
-  });
-
-  function getErrorMessage(msg) {
-    const m = msg.toLowerCase();
-    if (m.includes('fetch') || m.includes('network') || m.includes('failed to fetch') || m.includes('load failed'))
-      return 'Connection failed. Check your internet connection and try again.';
-    if (m.includes('parse') || m.includes('pattern') || m.includes('json'))
-      return 'The AI returned an unexpected response. Please try again.';
-    if (m.includes('api key') || m.includes('invalid_api_key') || m.includes('authentication'))
-      return 'Authentication error. The API key may be invalid or expired.';
-    if (m.includes('rate') || m.includes('429'))
-      return 'Too many requests. Please wait a moment and try again.';
-    if (m.includes('503') || m.includes('502') || m.includes('unavailable'))
-      return 'Service temporarily unavailable. Please try again in a moment.';
-    if (m.includes('empty response'))
-      return 'No response received from the AI. Please try again.';
-    return msg;
-  }
-
-  function showError(msg) {
-    const friendly = getErrorMessage(msg);
-    resultArea.innerHTML = `
-      <div class="result-card">
-        <div class="error-wrap">
-          <div class="error-icon"><span>!</span></div>
-          <div class="error-text">${friendly}</div>
-        </div>
-        <div style="padding: 0 18px 16px;">
-          <button class="try-again-btn" id="tryAgainBtn">↺ &nbsp;TRY AGAIN</button>
-        </div>
-      </div>`;
-    document.getElementById('tryAgainBtn').addEventListener('click', clearImage);
-  }
-
-  function showNotDetected(reason) {
-    resultArea.innerHTML = `
-      <div class="result-card">
-        <div class="result-header">
-          <div class="result-status-dot" style="background:var(--danger)"></div>
-          <div class="result-header-label">SCAN RESULT</div>
-        </div>
-        <div class="error-wrap">
-          <div class="error-icon"><span>!</span></div>
-          <div class="error-text">${reason || 'No HAZMAT placard detected. Ensure the full diamond is visible, well-lit, and in focus.'}</div>
-        </div>
-        <div style=
+buildSamplesDropdown();
+</script>
+</body>
+</html>
