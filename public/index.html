@@ -25,24 +25,6 @@
   body { background:var(--bg); color:var(--text); font-family:'IBM Plex Sans',sans-serif; font-size:var(--dt-base); min-height:100vh; display:flex; flex-direction:column; align-items:center; }
   body::before { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px); pointer-events:none; z-index:100; }
 
-  #pinScreen { position:fixed; inset:0; background:var(--bg); z-index:999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; }
-  .pin-diamond { width:64px; height:64px; background:var(--accent); transform:rotate(45deg); display:flex; align-items:center; justify-content:center; margin-bottom:28px; animation:pinGlow 2s ease-in-out infinite alternate; }
-  @keyframes pinGlow { from{box-shadow:0 0 20px rgba(245,168,0,0.2)} to{box-shadow:0 0 50px rgba(245,168,0,0.45)} }
-  .pin-diamond span { transform:rotate(-45deg); font-family:'Rajdhani',sans-serif; font-weight:700; font-size:var(--dt-md); color:#000; }
-  .pin-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:var(--dt-3xl); letter-spacing:3px; color:var(--accent); margin-bottom:4px; }
-  .pin-subtitle { font-family:'IBM Plex Mono',monospace; font-size:var(--dt-xs); letter-spacing:2px; color:var(--muted); margin-bottom:40px; }
-  .pin-dots { display:flex; gap:14px; margin-bottom:32px; }
-  .pin-dot { width:14px; height:14px; border:2px solid var(--border); border-radius:50%; transition:all 0.15s; }
-  .pin-dot.filled { background:var(--accent); border-color:var(--accent); box-shadow:0 0 8px rgba(245,168,0,0.5); }
-  .pin-dot.error { background:var(--danger); border-color:var(--danger); animation:shake 0.4s ease; }
-  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
-  .pin-keypad { display:grid; grid-template-columns:repeat(3,72px); gap:12px; }
-  .pin-key { height:72px; background:var(--surface); border:1px solid var(--border); border-radius:4px; color:var(--text); font-family:'Bebas Neue',sans-serif; font-size:var(--dt-2xl); letter-spacing:1px; cursor:pointer; transition:all 0.12s; display:flex; align-items:center; justify-content:center; user-select:none; -webkit-tap-highlight-color:transparent; }
-  .pin-key:active { background:rgba(245,168,0,0.12); border-color:var(--accent); color:var(--accent); transform:scale(0.95); }
-  .pin-key.del { font-size:var(--dt-xl); color:var(--muted); }
-  .pin-key.empty { background:transparent; border-color:transparent; pointer-events:none; }
-  .pin-message { margin-top:20px; font-family:'IBM Plex Mono',monospace; font-size:var(--dt-sm); letter-spacing:1px; color:var(--danger); min-height:18px; text-align:center; }
-
   #disclaimerScreen { position:fixed; inset:0; background:var(--bg); z-index:998; display:none; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px; overflow-y:auto; }
   .disc-diamond { width:56px; height:56px; background:var(--danger); transform:rotate(45deg); display:flex; align-items:center; justify-content:center; margin-bottom:24px; box-shadow:0 0 30px rgba(224,60,60,0.3); }
   .disc-diamond span { transform:rotate(-45deg); font-family:'Rajdhani',sans-serif; font-weight:700; font-size:var(--dt-xl); color:#fff; }
@@ -249,32 +231,7 @@
 </head>
 <body>
 
-<div id="pinScreen">
-  <div class="pin-diamond"><span>WTH</span></div>
-  <div class="pin-title">What's That HAZMAT</div>
-  <div class="pin-subtitle">ENTER PIN TO CONTINUE</div>
-  <div class="pin-dots">
-    <div class="pin-dot" id="d0"></div>
-    <div class="pin-dot" id="d1"></div>
-    <div class="pin-dot" id="d2"></div>
-    <div class="pin-dot" id="d3"></div>
-  </div>
-  <div class="pin-keypad">
-    <button class="pin-key" onclick="pinPress('1')">1</button>
-    <button class="pin-key" onclick="pinPress('2')">2</button>
-    <button class="pin-key" onclick="pinPress('3')">3</button>
-    <button class="pin-key" onclick="pinPress('4')">4</button>
-    <button class="pin-key" onclick="pinPress('5')">5</button>
-    <button class="pin-key" onclick="pinPress('6')">6</button>
-    <button class="pin-key" onclick="pinPress('7')">7</button>
-    <button class="pin-key" onclick="pinPress('8')">8</button>
-    <button class="pin-key" onclick="pinPress('9')">9</button>
-    <button class="pin-key empty"></button>
-    <button class="pin-key" onclick="pinPress('0')">0</button>
-    <button class="pin-key del" onclick="pinDelete()">&#9003;</button>
-  </div>
-  <div class="pin-message" id="pinMessage"></div>
-</div>
+
 
 <div id="disclaimerScreen">
   <div class="disc-diamond"><span>!</span></div>
@@ -488,63 +445,10 @@
 
 <div class="warning-strip">&#9888; FOR REFERENCE ONLY &middot; IN AN EMERGENCY CALL 911 &middot; DO NOT RELY SOLELY ON THIS APP</div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-var CORRECT_PIN = "1525";
-var MAX_ATTEMPTS = 5;
-var LOCKOUT_SECS = 30;
-var pinEntry = "", attempts = 0, lockedOut = false;
+<script>
 
-function pinPress(digit) {
-  if (lockedOut || pinEntry.length >= 4) return;
-  pinEntry += digit;
-  updateDots();
-  if (pinEntry.length === 4) checkPin();
-}
-
-function pinDelete() {
-  if (lockedOut) return;
-  pinEntry = pinEntry.slice(0, -1);
-  updateDots();
-}
-
-function updateDots(state) {
-  for (var i = 0; i < 4; i++) {
-    var d = document.getElementById('d' + i);
-    d.className = 'pin-dot';
-    if (state === 'error') d.classList.add('error');
-    else if (i < pinEntry.length) d.classList.add('filled');
-  }
-}
-
-function checkPin() {
-  if (pinEntry === CORRECT_PIN) {
-    document.getElementById('pinScreen').style.display = 'none';
-    document.getElementById('disclaimerScreen').style.display = 'flex';
-  } else {
-    attempts++;
-    updateDots('error');
-    pinEntry = "";
-    if (attempts >= MAX_ATTEMPTS) {
-      startLockout();
-    } else {
-      var left = MAX_ATTEMPTS - attempts;
-      document.getElementById('pinMessage').textContent = 'Incorrect PIN. ' + left + ' attempt' + (left !== 1 ? 's' : '') + ' remaining.';
-      setTimeout(function() { updateDots(); document.getElementById('pinMessage').textContent = ''; }, 800);
-    }
-  }
-}
-
-function startLockout() {
-  lockedOut = true;
-  var secs = LOCKOUT_SECS;
-  var msg = document.getElementById('pinMessage');
-  msg.textContent = 'Too many attempts. Try again in ' + secs + 's.';
-  var t = setInterval(function() {
-    secs--;
-    msg.textContent = 'Too many attempts. Try again in ' + secs + 's.';
-    if (secs <= 0) { clearInterval(t); lockedOut = false; attempts = 0; pinEntry = ""; updateDots(); msg.textContent = ''; }
-  }, 1000);
-}
+// Show disclaimer on first load each session
+document.getElementById('disclaimerScreen').style.display = 'flex';
 
 document.getElementById('disclaimerAgreeBtn').addEventListener('click', function() {
   document.getElementById('disclaimerScreen').style.display = 'none';
