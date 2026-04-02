@@ -101,8 +101,8 @@
   .tab-btn { flex-shrink:0; padding:10px 12px; font-family:'IBM Plex Mono',monospace; font-size:var(--dt-xs); letter-spacing:0.5px; color:var(--muted); background:transparent; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
   .tab-btn:hover { color:var(--text); }
   .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
-  .tab-btn.pro-tab { color:#6b5a2a; }
-  .tab-btn.pro-tab:hover { color:var(--accent); }
+  .tab-btn.pro-tab { color:var(--muted); }
+  .tab-btn.pro-tab:hover { color:var(--text); }
   .tab-panel { display:none; padding:16px 18px; }
   .tab-panel.active { display:block; }
 
@@ -253,9 +253,9 @@
     <div class="pro-modal-header">
       <div class="pro-modal-diamond"><span>PRO</span></div>
       <div class="pro-modal-title">UPGRADE TO PRO</div>
-      <div style="display:inline-block;background:rgba(224,60,60,0.15);border:1px solid rgba(224,60,60,0.4);color:#e03c3c;font-family:'IBM Plex Mono',sans-serif;font-size:var(--dt-xs);letter-spacing:1.5px;padding:3px 10px;border-radius:2px;margin-bottom:8px;">LIMITED INTRODUCTORY PRICE</div>
+      <div style="display:inline-block;background:rgba(224,60,60,0.15);border:1px solid rgba(224,60,60,0.4);color:#e03c3c;font-family:sans-serif,sans-serif;font-size:var(--dt-xs);letter-spacing:1.5px;padding:3px 10px;border-radius:2px;margin-bottom:8px;">LIMITED INTRODUCTORY PRICE</div>
       <div class="pro-modal-price" style="display:flex;align-items:baseline;justify-content:center;gap:10px;">
-        <span style="font-size:var(--dt-3xl);font-weight:700;color:var(--accent);font-family:'Rajdhani',sans-serif;">$4.99</span>
+        <span style="font-size:var(--dt-3xl);font-weight:700;color:var(--accent);font-family:sans-serif,sans-serif;">$4.99</span>
         <span style="color:var(--muted);font-size:var(--dt-sm);">/ year</span>
       </div>
       <div style="font-size:var(--dt-xs);color:var(--muted);margin-top:4px;letter-spacing:0.5px;">Regular price $9.99/yr &middot; Lock in now &middot; Cancel anytime</div>
@@ -383,61 +383,61 @@
           <div style="width:48px;height:48px;background:rgba(245,168,0,0.1);border:2px solid rgba(245,168,0,0.3);transform:rotate(45deg);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;">
             <span style="transform:rotate(-45deg);font-size:20px;">&#128269;</span>
           </div>
-          <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;letter-spacing:2px;color:var(--text);margin-bottom:8px;">READY TO SCAN</div>
+          <div style="font-family:sans-serif,sans-serif;font-weight:700;font-size:20px;letter-spacing:2px;color:var(--text);margin-bottom:8px;">READY TO SCAN</div>
           <div style="font-size:14px;color:var(--muted);line-height:1.7;max-width:320px;margin:0 auto;">Upload a photo or use your camera to photograph a HAZMAT placard. The AI will identify the hazard, UN number, danger level, and emergency actions.</div>
           <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:320px;margin:20px auto 0;">
             <div style="background:var(--bg);border:1px solid var(--border);padding:10px;border-radius:2px;text-align:center;">
               <div style="font-size:18px;margin-bottom:4px;">&#128247;</div>
-              <div style="font-family:'IBM Plex Mono',monospace;font-size:var(--dt-xs);color:var(--muted);letter-spacing:1px;">TAKE PHOTO</div>
+              <div style="font-family:monospace;font-size:var(--dt-xs);color:var(--muted);letter-spacing:1px;">TAKE PHOTO</div>
             </div>
             <div style="background:var(--bg);border:1px solid var(--border);padding:10px;border-radius:2px;text-align:center;">
               <div style="font-size:18px;margin-bottom:4px;">&#128194;</div>
-              <div style="font-family:'IBM Plex Mono',monospace;font-size:var(--dt-xs);color:var(--muted);letter-spacing:1px;">UPLOAD IMAGE</div>
+              <div style="font-family:monospace;font-size:var(--dt-xs);color:var(--muted);letter-spacing:1px;">UPLOAD IMAGE</div>
             </div>
             <div style="background:var(--bg);border:1px solid var(--border);padding:10px;border-radius:2px;text-align:center;">
               <div style="font-size:18px;margin-bottom:4px;">&#9733;</div>
-              <div style="font-family:'IBM Plex Mono',monospace;font-size:var(--dt-xs);color:var(--muted);letter-spacing:1px;">TRY SAMPLES</div>
+              <div style="font-family:monospace;font-size:var(--dt-xs);color:var(--muted);letter-spacing:1px;">TRY SAMPLES</div>
             </div>
             <div style="background:var(--bg);border:1px solid var(--border);padding:10px;border-radius:2px;text-align:center;">
               <div style="font-size:18px;margin-bottom:4px;">&#128681;</div>
-              <div style="font-family:'IBM Plex Mono',monospace;font-size:var(--dt-xs);color:var(--muted);letter-spacing:1px;">GET RESULTS</div>
+              <div style="font-family:monospace;font-size:var(--dt-xs);color:var(--muted);letter-spacing:1px;">GET RESULTS</div>
             </div>
           </div>
         </div>
       </div>
       <div id="readyTab-news" class="tab-panel">
         <div style="padding:20px 0;text-align:center;color:var(--muted);font-size:14px;line-height:1.7;">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">NEWS &amp; REGULATORY UPDATES</div>
+          <div style="font-family:monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">NEWS &amp; REGULATORY UPDATES</div>
           Scan a placard to see the latest news, incidents, and regulatory updates specific to that hazardous material.
         </div>
       </div>
       <div id="readyTab-history" class="tab-panel">
         <div style="padding:20px 0;text-align:center;color:var(--muted);font-size:14px;line-height:1.7;">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">HISTORIC ACCIDENTS</div>
+          <div style="font-family:monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">HISTORIC ACCIDENTS</div>
           Scan a placard to see notable historical incidents and accidents involving that specific material.
         </div>
       </div>
       <div id="readyTab-nearby" class="tab-panel">
         <div style="padding:20px 0;text-align:center;color:var(--muted);font-size:14px;line-height:1.7;">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">NEARBY FACILITIES</div>
+          <div style="font-family:monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">NEARBY FACILITIES</div>
           Scan a placard to find nearby hospitals, fire stations, and HAZMAT response teams in your area.
         </div>
       </div>
       <div id="readyTab-supplies" class="tab-panel">
         <div style="padding:20px 0;text-align:center;color:var(--muted);font-size:14px;line-height:1.7;">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">REQUIRED SUPPLIES</div>
+          <div style="font-family:monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">REQUIRED SUPPLIES</div>
           Scan a placard to see the PPE, containment equipment, and safety supplies needed to handle that hazmat safely.
         </div>
       </div>
       <div id="readyTab-erg" class="tab-panel">
         <div style="padding:20px 0;text-align:center;color:var(--muted);font-size:14px;line-height:1.7;">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">EMERGENCY RESPONSE GUIDE</div>
+          <div style="font-family:monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">EMERGENCY RESPONSE GUIDE</div>
           Scan a placard to access the full DOT Emergency Response Guidebook data for that UN number.
         </div>
       </div>
       <div id="readyTab-comply" class="tab-panel">
         <div style="padding:20px 0;text-align:center;color:var(--muted);font-size:14px;line-height:1.7;">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">REGULATORY COMPLIANCE</div>
+          <div style="font-family:monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">REGULATORY COMPLIANCE</div>
           Scan a placard to see DOT, OSHA, and EPA compliance requirements for transporting and handling that material.
         </div>
       </div>
@@ -526,7 +526,7 @@ function analyzePlacard() {
   var mi = 0;
   var msgTimer = setInterval(function() { mi = (mi+1) % msgs.length; var el = document.getElementById('loadingText'); if(el) el.textContent = msgs[mi]; }, 600);
 
-  var prompt = 'You are a DOT HAZMAT placard expert. Look carefully and identify ALL HAZMAT placards visible.\n\nReturn ONLY raw JSON, no markdown, no backticks:\n{"detected":true,"placards":[{"hazardClass":"Class 3","hazardType":"Flammable Liquid","unNumber":"UN1993","commonExample":"Diesel","emergencyActions":"2-3 sentences on accident response","fullExplanation":"3-4 plain English sentences for non-expert","dangerLevel":"LOW or MODERATE or HIGH or EXTREME","placard_color":"red","symbol_described":"flame","news":[{"date":"2024","title":"Regulatory Update Headline","summary":"2 sentence summary including agency name"},{"date":"2023","title":"Incident or Regulatory Item","summary":"2 sentence summary"}],"supplies":[{"category":"PPE","name":"Item","description":"Why needed"}],"history":[{"year":"1984","title":"Notable Incident Title","location":"City, State","description":"2-3 sentences on what happened and lessons learned","casualties":"optional e.g. 3 fatalities"}]}]}\n\nRules:\n- Always use the placards array\n- dangerLevel must be exactly LOW, MODERATE, HIGH, or EXTREME\n- news: include 5-6 items mixing real recent incidents AND regulatory updates from DOT, OSHA, EPA, or state agencies. Label regulatory items with agency name.\n- supplies: 3-4 key supplies needed\n- history: 3-4 real notable accidents or spills involving this specific material. Each needs year, title, location, description, and optional casualties.\n- If no placard visible: {"detected":false,"reason":"description"}';
+  var prompt = 'You are a DOT HAZMAT placard and emergency response expert. Look carefully and identify ALL HAZMAT placards visible.\n\nReturn ONLY raw JSON, no markdown, no backticks:\n{"detected":true,"placards":[{"hazardClass":"Class 3","hazardType":"Flammable Liquid","unNumber":"UN1993","commonExample":"Diesel","emergencyActions":"2-3 sentences on accident response","fullExplanation":"3-4 plain English sentences for non-expert","dangerLevel":"LOW or MODERATE or HIGH or EXTREME","placard_color":"red","symbol_described":"flame","news":[{"date":"2024","title":"Regulatory Update Headline","summary":"2 sentence summary including agency name"},{"date":"2023","title":"Incident or Regulatory Item","summary":"2 sentence summary"}],"supplies":[{"category":"PPE","name":"Item","description":"Why needed"}],"history":[{"year":"1984","title":"Notable Incident Title","location":"City, State","description":"2-3 sentences on what happened and lessons learned","casualties":"optional e.g. 3 fatalities"}],"erg":{"guide_number":"128","isolation":{"small_spill_meters":"30","large_spill_meters":"150","fire_meters":"800"},"fire":{"do":"Specific actions to take during fire - 2-3 sentences","do_not":"What NOT to do during fire - 1-2 sentences","extinguisher":"Best extinguishing agents for this material"},"spill_leak":{"small":"Response steps for small spill - 2-3 sentences","large":"Response steps for large spill - 2-3 sentences","do_not":"What NOT to do during spill - 1 sentence"},"first_aid":{"inhalation":"First aid steps if inhaled","skin":"First aid steps for skin contact","eyes":"First aid steps for eye contact","ingestion":"First aid steps if ingested"},"evacuation":{"immediate_meters":"100","protective_action":"Description of protective action zone and who should evacuate","shelter_in_place":"When to shelter in place vs evacuate"},"ppe":["Item 1 e.g. Self-contained breathing apparatus","Item 2 e.g. Chemical resistant gloves","Item 3"]},"comply":{"dot":{"placard_threshold":"e.g. Required when transporting 1001 lbs or more","shipping_name":"Proper DOT shipping name","hazmat_class":"DOT hazard class and division","packing_group":"I II or III","shipping_paper":"What must appear on shipping papers","special_provisions":"Any special DOT provisions or exceptions"},"osha":{"pel":"Permissible Exposure Limit e.g. 500 ppm TWA","tlv":"Threshold Limit Value e.g. 200 ppm","stel":"Short Term Exposure Limit if applicable","routes":"Primary exposure routes","required_controls":"Engineering controls and PPE required by OSHA"},"storage":{"temperature":"Storage temperature requirements","incompatibles":"Materials that must not be stored nearby","container":"Required container types","ventilation":"Ventilation requirements","segregation":"Segregation requirements from other hazmat classes"},"state":{"reporting":"State-level reporting requirements summary","notable_states":"2-3 states with stricter regulations than federal e.g. California Prop 65","training":"State training requirements for handlers"}}}]}\n\nRules:\n- Always use placards array\n- dangerLevel must be exactly LOW, MODERATE, HIGH, or EXTREME\n- news: 5-6 items mixing real recent incidents AND regulatory updates from DOT, OSHA, EPA, or state agencies\n- supplies: 3-4 key supplies\n- history: 3-4 real notable accidents with year, title, location, description, optional casualties\n- erg: use actual ERG 2024 guide data where known, AI-generate realistic values where not\n- comply: use real federal regulations, note where state laws may be stricter\n- If no placard visible: {"detected":false,"reason":"description"}';
 
   var messageContent = currentSample
     ? [{ type: 'text', text: 'DOT HAZMAT placard details:\nUN: ' + currentSample.un + '\nClass: ' + currentSample.class + '\nMaterial: ' + currentSample.name + '\n\n' + prompt }]
@@ -665,18 +665,24 @@ function buildCard(p, index, total) {
     histHtml = '<div style="color:var(--muted);font-size:13px;padding:12px 0;">No historical incidents found for this material.</div>';
   }
   html += '<div id="'+id+'-history" class="tab-panel">'+histHtml+'</div>';
-  var ergHtml = isProUser
-    ? '<div style="color:var(--muted);font-size:13px;padding:12px 0;">ERG data will load here in full Pro release.</div>'
-    : proLock('ERG Data',['Full Emergency Response Guidebook','Isolation distances','Protective action zones']);
-  html += '<div id="'+id+'-erg" class="tab-panel">'+ergHtml+'</div>';
+  var ergHtml;
+  if (!isProUser) {
+    ergHtml = proLock('ERG Data',['Isolation & evacuation distances','Fire & spill response','First aid procedures','Protective equipment required']);
+  } else if (p.erg) { ergHtml = buildErgHtml(p.erg); } else { ergHtml = '<div style="padding:16px;color:var(--muted);font-size:13px;">ERG data not available for this material.</div>'; }
+  html += '<div id="'+id+'-erg" class="tab-panel" style="padding:0;">'+ergHtml+'</div>';
   var nearbyHtml = isProUser
     ? '<div style="text-align:center;padding:20px 0;"><button onclick="loadNearby(this)" data-card="'+id+'" style="background:var(--accent);color:#000;border:none;padding:10px 20px;font-weight:700;font-size:15px;cursor:pointer;border-radius:2px;">FIND NEARBY FACILITIES</button></div>'
     : proLock('Nearby Facilities',['Hospitals & trauma centers','Fire stations & HAZMAT teams','Decontamination sites']);
   html += '<div id="'+id+'-nearby" class="tab-panel">'+nearbyHtml+'</div>';
-  var complyHtml = isProUser
-    ? '<div style="color:var(--muted);font-size:13px;padding:12px 0;">Regulatory compliance data will load here in full Pro release.</div>'
-    : proLock('Regulatory Compliance',['DOT transport rules','OSHA requirements','EPA obligations']);
-  html += '<div id="'+id+'-comply" class="tab-panel">'+complyHtml+'</div>';
+  var complyHtml;
+  if (!isProUser) {
+    complyHtml = proLock('Regulatory Compliance',['DOT transport & placarding rules','OSHA exposure limits (PEL/TLV)','Storage & segregation requirements','State-level regulations']);
+  } else if (p.comply) {
+    complyHtml = buildComplyHtml(p.comply);
+  } else {
+    complyHtml = '<div style="color:var(--muted);font-size:13px;padding:12px 0;">Compliance data not available for this material.</div>';
+  }
+  html += '<div id="'+id+'-comply" class="tab-panel" style="padding:0;">'+complyHtml+'</div>';
   html += '</div>';
   return html;
 }
@@ -686,7 +692,7 @@ function showResult(result) {
   var placards = result.placards ? result.placards : [result];
   var count = placards.length;
   var html = '';
-  if (count > 1) html += '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;padding:8px 12px;border:1px solid rgba(245,168,0,0.3);border-radius:2px;background:rgba(245,168,0,0.07);text-align:center;">&#9888; ' + count + ' PLACARDS DETECTED</div>';
+  if (count > 1) html += '<div style="font-family:monospace;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:12px;padding:8px 12px;border:1px solid rgba(245,168,0,0.3);border-radius:2px;background:rgba(245,168,0,0.07);text-align:center;">&#9888; ' + count + ' PLACARDS DETECTED</div>';
   for (var i = 0; i < placards.length; i++) { html += buildCard(placards[i], i, count); }
   resultArea.innerHTML = html;
   // Save to history
@@ -747,6 +753,144 @@ function buildSVG(s) {
     +'<text x="'+cx+'" y="'+(bY+bH/2+2)+'" font-size="36" font-weight="bold" font-family="Arial" text-anchor="middle" dominant-baseline="middle" fill="#111">'+un+'</text>'
     +'<text x="'+cx+'" y="'+(cy+140)+'" font-size="28" font-weight="bold" font-family="Arial" text-anchor="middle" dominant-baseline="middle" fill="'+tc+'">'+s.class+'</text>'
     +'</svg>';
+}
+
+// ── ERG DISPLAY ──
+function ergRow(label, value) {
+  if (!value) return '';
+  return '<div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;">'
+    + '<div style="font-size:10px;letter-spacing:1px;color:var(--accent);width:90px;flex-shrink:0;padding-top:3px;">' + label + '</div>'
+    + '<div style="font-size:14px;color:#b0bcbc;line-height:1.6;flex:1;">' + value + '</div>'
+    + '</div>';
+}
+function ergSection(title, rows) {
+  if (!rows) return '';
+  return '<div style="background:var(--bg);padding:8px 16px;border-bottom:2px solid var(--border);">'
+    + '<div style="font-family:monospace;font-size:10px;letter-spacing:2px;color:var(--accent);padding:8px 0 4px;">' + title + '</div>'
+    + '</div>' + rows;
+}
+function buildErgHtml(erg) {
+  var html = '';
+  // Guide number header
+  if (erg.guide_number) {
+    html += '<div style="background:rgba(245,168,0,0.08);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px;">'
+      + '<div style="font-family:monospace;font-size:10px;letter-spacing:2px;color:var(--muted);">ERG GUIDE</div>'
+      + '<div style="font-family:sans-serif,sans-serif;font-weight:700;font-size:22px;color:var(--accent);">#' + erg.guide_number + '</div>'
+      + '</div>';
+  }
+  // Isolation distances
+  if (erg.isolation) {
+    html += ergSection('ISOLATION DISTANCES',
+      ergRow('SMALL SPILL', erg.isolation.small_spill_meters ? erg.isolation.small_spill_meters + ' meters in all directions' : null)
+      + ergRow('LARGE SPILL', erg.isolation.large_spill_meters ? erg.isolation.large_spill_meters + ' meters in all directions' : null)
+      + ergRow('FIRE', erg.isolation.fire_meters ? erg.isolation.fire_meters + ' meters — consider evacuation' : null)
+    );
+  }
+  // Evacuation
+  if (erg.evacuation) {
+    html += ergSection('EVACUATION',
+      ergRow('IMMEDIATE', erg.evacuation.immediate_meters ? erg.evacuation.immediate_meters + ' meters' : null)
+      + ergRow('PROTECT', erg.evacuation.protective_action || null)
+      + ergRow('SHELTER', erg.evacuation.shelter_in_place || null)
+    );
+  }
+  // Protective equipment
+  if (erg.ppe && erg.ppe.length) {
+    var ppeRows = '';
+    for (var i = 0; i < erg.ppe.length; i++) {
+      ppeRows += ergRow(i === 0 ? 'REQUIRED' : '', erg.ppe[i]);
+    }
+    html += ergSection('PROTECTIVE EQUIPMENT', ppeRows);
+  }
+  // Fire response
+  if (erg.fire) {
+    html += ergSection('FIRE RESPONSE',
+      ergRow('DO', erg.fire.do || null)
+      + ergRow('DO NOT', erg.fire.do_not || null)
+      + ergRow('EXTINGUISH', erg.fire.extinguisher || null)
+    );
+  }
+  // Spill & leak
+  if (erg.spill_leak) {
+    html += ergSection('SPILL & LEAK',
+      ergRow('SMALL', erg.spill_leak.small || null)
+      + ergRow('LARGE', erg.spill_leak.large || null)
+      + ergRow('DO NOT', erg.spill_leak.do_not || null)
+    );
+  }
+  // First aid
+  if (erg.first_aid) {
+    html += ergSection('FIRST AID',
+      ergRow('INHALATION', erg.first_aid.inhalation || null)
+      + ergRow('SKIN', erg.first_aid.skin || null)
+      + ergRow('EYES', erg.first_aid.eyes || null)
+      + ergRow('INGESTION', erg.first_aid.ingestion || null)
+    );
+  }
+  html += '<div style="padding:10px 16px;font-family:monospace;font-size:9px;color:var(--muted);letter-spacing:0.5px;">SOURCE: DOT ERG 2024 + AI ANALYSIS. VERIFY WITH OFFICIAL ERG GUIDE.</div>';
+  return html || '<div style="padding:16px;color:var(--muted);font-size:13px;">ERG data not available.</div>';
+}
+
+// ── COMPLY DISPLAY ──
+function complySection(title, color, rows) {
+  return '<div style="background:var(--bg);padding:8px 16px;border-bottom:2px solid var(--border);">'
+    + '<div style="font-family:monospace;font-size:10px;letter-spacing:2px;color:' + color + ';padding:8px 0 4px;">' + title + '</div>'
+    + '</div>' + rows;
+}
+function complyRow(label, value) {
+  if (!value) return '';
+  return '<div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;">'
+    + '<div style="font-size:10px;letter-spacing:1px;color:var(--muted);width:90px;flex-shrink:0;padding-top:3px;">' + label + '</div>'
+    + '<div style="font-size:14px;color:#b0bcbc;line-height:1.6;flex:1;">' + value + '</div>'
+    + '</div>';
+}
+function buildComplyHtml(comply) {
+  var html = '';
+  // DOT Section
+  if (comply.dot) {
+    var d = comply.dot;
+    html += complySection('DOT TRANSPORT REQUIREMENTS', '#f5a800',
+      complyRow('THRESHOLD', d.placard_threshold || null)
+      + complyRow('SHIPPING NAME', d.shipping_name || null)
+      + complyRow('HAZMAT CLASS', d.hazmat_class || null)
+      + complyRow('PACKING GROUP', d.packing_group ? 'Group ' + d.packing_group : null)
+      + complyRow('SHIPPING PAPERS', d.shipping_paper || null)
+      + complyRow('SPECIAL', d.special_provisions || null)
+    );
+  }
+  // OSHA Section
+  if (comply.osha) {
+    var o = comply.osha;
+    html += complySection('OSHA WORKPLACE REQUIREMENTS', '#2ecc71',
+      complyRow('PEL', o.pel || null)
+      + complyRow('TLV', o.tlv || null)
+      + complyRow('STEL', o.stel || null)
+      + complyRow('EXPOSURE', o.routes || null)
+      + complyRow('CONTROLS', o.required_controls || null)
+    );
+  }
+  // Storage Section
+  if (comply.storage) {
+    var s = comply.storage;
+    html += complySection('STORAGE & SEGREGATION', '#e07c3c',
+      complyRow('TEMPERATURE', s.temperature || null)
+      + complyRow('INCOMPATIBLES', s.incompatibles || null)
+      + complyRow('CONTAINERS', s.container || null)
+      + complyRow('VENTILATION', s.ventilation || null)
+      + complyRow('SEGREGATION', s.segregation || null)
+    );
+  }
+  // State Section
+  if (comply.state) {
+    var st = comply.state;
+    html += complySection('STATE REGULATIONS', '#1a8aaa',
+      complyRow('REPORTING', st.reporting || null)
+      + complyRow('STRICTER STATES', st.notable_states || null)
+      + complyRow('TRAINING', st.training || null)
+    );
+  }
+  html += '<div style="padding:10px 16px;font-family:monospace;font-size:9px;color:var(--muted);letter-spacing:0.5px;">REGULATORY DATA IS INFORMATIONAL. VERIFY WITH CURRENT CFR, OSHA, AND STATE REGULATIONS.</div>';
+  return html || '<div style="padding:16px;color:var(--muted);font-size:13px;">Compliance data not available.</div>';
 }
 
 function buildSamplesDropdown() {
