@@ -531,9 +531,9 @@ function analyzePlacard() {
 
   var messageContent;
   if (currentSample && currentSample.img) {
-    // Extract base64 and detect media type from data URL
+    // Sample images are JPEGs embedded with data URLs - always use image/jpeg
     var sampleParts = currentSample.img.split(',');
-    var sampleMime = sampleParts[0].match(/:(.*?);/)[1]; // e.g. image/jpeg or image/png
+    var sampleMime = 'image/jpeg'; // samples are always JPEG regardless of data URL header
     var sampleB64 = sampleParts[1];
     messageContent = [
       { type: 'image', source: { type: 'base64', media_type: sampleMime, data: sampleB64 } },
