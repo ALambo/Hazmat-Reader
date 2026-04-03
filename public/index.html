@@ -945,13 +945,30 @@ document.addEventListener('click', function(e) {
 function loadSample(i) {
   var s = SAMPLES[i];
   document.getElementById('samplesDropdown').classList.remove('open');
-  currentSample = s;
+  currentSample = null;
   imageBase64 = null;
   var imgSrc = s.img || ('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(buildSVG(s)));
-  previewImg.src = imgSrc;
-  previewWrap.classList.remove('hidden');
-  analyzeBtn.disabled = false;
-  resultArea.innerHTML = '';
+  // Re-encode through canvas to produce a clean JPEG (fixes PNG header mismatch)
+  var tempImg = new Image();
+  tempImg.onload = function() {
+    var canvas = document.createElement('canvas');
+    var MAX = 1024;
+    var w = tempImg.width, h = tempImg.height;
+    if (w > MAX || h > MAX) {
+      if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+      else { w = Math.round(w * MAX / h); h = MAX; }
+    }
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(tempImg, 0, 0, w, h);
+    var cleanDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    imageBase64 = cleanDataUrl.split(',')[1];
+    imageMediaType = 'image/jpeg';
+    previewImg.src = cleanDataUrl;
+    previewWrap.classList.remove('hidden');
+    analyzeBtn.disabled = false;
+    resultArea.innerHTML = '';
+  };
+  tempImg.src = imgSrc;
 }
 
 var MAX_HISTORY = 25;
