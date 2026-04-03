@@ -48,6 +48,6 @@
 	<key>NSCameraUsageDescription</key>
 	<string>What&apos;s That HAZMAT uses your camera to photograph HAZMAT placards for identification</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string></string>
+	<string>What&apos;s That HAZMAT allows you to upload existing photos of HAZMAT placards</string>
 </dict>
 </plist>

@@ -528,9 +528,20 @@ function analyzePlacard() {
 
   var prompt = 'You are a DOT HAZMAT placard and emergency response expert. Look carefully and identify ALL HAZMAT placards visible.\n\nReturn ONLY raw JSON, no markdown, no backticks:\n{"detected":true,"placards":[{"hazardClass":"Class 3","hazardType":"Flammable Liquid","unNumber":"UN1993","commonExample":"Diesel","emergencyActions":"2-3 sentences on accident response","fullExplanation":"3-4 plain English sentences for non-expert","dangerLevel":"LOW or MODERATE or HIGH or EXTREME","placard_color":"red","symbol_described":"flame","news":[{"date":"2024","title":"Regulatory Update Headline","summary":"2 sentence summary including agency name"},{"date":"2023","title":"Incident or Regulatory Item","summary":"2 sentence summary"}],"supplies":[{"category":"PPE","name":"Item","description":"Why needed"}],"history":[{"year":"1984","title":"Notable Incident Title","location":"City, State","description":"2-3 sentences on what happened and lessons learned","casualties":"optional e.g. 3 fatalities"}],"erg":{"guide_number":"128","isolation":{"small_spill_meters":"30","large_spill_meters":"150","fire_meters":"800"},"fire":{"do":"Specific actions to take during fire - 2-3 sentences","do_not":"What NOT to do during fire - 1-2 sentences","extinguisher":"Best extinguishing agents for this material"},"spill_leak":{"small":"Response steps for small spill - 2-3 sentences","large":"Response steps for large spill - 2-3 sentences","do_not":"What NOT to do during spill - 1 sentence"},"first_aid":{"inhalation":"First aid steps if inhaled","skin":"First aid steps for skin contact","eyes":"First aid steps for eye contact","ingestion":"First aid steps if ingested"},"evacuation":{"immediate_meters":"100","protective_action":"Description of protective action zone and who should evacuate","shelter_in_place":"When to shelter in place vs evacuate"},"ppe":["Item 1 e.g. Self-contained breathing apparatus","Item 2 e.g. Chemical resistant gloves","Item 3"]},"comply":{"dot":{"placard_threshold":"e.g. Required when transporting 1001 lbs or more","shipping_name":"Proper DOT shipping name","hazmat_class":"DOT hazard class and division","packing_group":"I II or III","shipping_paper":"What must appear on shipping papers","special_provisions":"Any special DOT provisions or exceptions"},"osha":{"pel":"Permissible Exposure Limit e.g. 500 ppm TWA","tlv":"Threshold Limit Value e.g. 200 ppm","stel":"Short Term Exposure Limit if applicable","routes":"Primary exposure routes","required_controls":"Engineering controls and PPE required by OSHA"},"storage":{"temperature":"Storage temperature requirements","incompatibles":"Materials that must not be stored nearby","container":"Required container types","ventilation":"Ventilation requirements","segregation":"Segregation requirements from other hazmat classes"},"state":{"reporting":"State-level reporting requirements summary","notable_states":"2-3 states with stricter regulations than federal e.g. California Prop 65","training":"State training requirements for handlers"}}}]}\n\nRules:\n- Always use placards array\n- dangerLevel must be exactly LOW, MODERATE, HIGH, or EXTREME\n- news: 5-6 items mixing real recent incidents AND regulatory updates from DOT, OSHA, EPA, or state agencies\n- supplies: 3-4 key supplies\n- history: 3-4 real notable accidents with year, title, location, description, optional casualties\n- erg: use actual ERG 2024 guide data where known, AI-generate realistic values where not\n- comply: use real federal regulations, note where state laws may be stricter\n- If no placard visible: {"detected":false,"reason":"description"}';
 
-  var messageContent = currentSample
-    ? [{ type: 'text', text: 'DOT HAZMAT placard details:\nUN: ' + currentSample.un + '\nClass: ' + currentSample.class + '\nMaterial: ' + currentSample.name + '\n\n' + prompt }]
-    : [{ type: 'image', source: { type: 'base64', media_type: imageMediaType, data: imageBase64 } }, { type: 'text', text: prompt }];
+  var messageContent;
+  if (currentSample && currentSample.img) {
+    // Extract base64 from data URL for sample images
+    var sampleB64 = currentSample.img.split(',')[1];
+    messageContent = [
+      { type: 'image', source: { type: 'base64', media_type: 'image/png', data: sampleB64 } },
+      { type: 'text', text: prompt }
+    ];
+  } else {
+    messageContent = [
+      { type: 'image', source: { type: 'base64', media_type: imageMediaType, data: imageBase64 } },
+      { type: 'text', text: prompt }
+    ];
+  }
 
   fetch('https://hazmatreader.vercel.app/api/analyze', {
     method: 'POST',
@@ -545,8 +556,19 @@ function analyzePlacard() {
     var result = null;
     try { result = JSON.parse(text.trim()); } catch(e1) {
       try { result = JSON.parse(text.replace(/```json|```/gi,'').trim()); } catch(e2) {
-        try { var m = text.match(/\{[\s\S]*\}/); if(m) result = JSON.parse(m[0]); } catch(e3) {
-          showError('Could not parse response. Please try again.'); return;
+        try {
+          // Find the outermost { } block
+          var start = text.indexOf('{');
+          var end = text.lastIndexOf('}');
+          if (start >= 0 && end > start) result = JSON.parse(text.substring(start, end+1));
+        } catch(e3) {
+          try {
+            // Try to extract just detected + placards
+            var m = text.match(/\{[\s\S]*?\}/);
+            if (m) result = JSON.parse(m[0]);
+          } catch(e4) {
+            showError('Could not parse response. Please try again.'); return;
+          }
         }
       }
     }
