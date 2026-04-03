@@ -532,7 +532,7 @@ function analyzePlacard() {
     ? [{ type: 'text', text: 'DOT HAZMAT placard details:\nUN: ' + currentSample.un + '\nClass: ' + currentSample.class + '\nMaterial: ' + currentSample.name + '\n\n' + prompt }]
     : [{ type: 'image', source: { type: 'base64', media_type: imageMediaType, data: imageBase64 } }, { type: 'text', text: prompt }];
 
-  fetch('/api/analyze', {
+  fetch('https://hazmatreader.vercel.app/api/analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 3000, messages: [{ role: 'user', content: messageContent }] })

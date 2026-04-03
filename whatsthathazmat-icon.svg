@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Solid black background - no transparency -->
+  <rect width="1024" height="1024" rx="224" fill="#0d0f0f" opacity="1"/>
+  <!-- Scan brackets - top left -->
+  <path d="M137,325 L137,137 L325,137" fill="none" stroke="#f5a800" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Scan brackets - top right -->
+  <path d="M699,137 L887,137 L887,325" fill="none" stroke="#f5a800" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Scan brackets - bottom left -->
+  <path d="M137,699 L137,887 L325,887" fill="none" stroke="#f5a800" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Scan brackets - bottom right -->
+  <path d="M699,887 L887,887 L887,699" fill="none" stroke="#f5a800" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Main red diamond -->
+  <polygon points="512,154 870,512 512,870 154,512" fill="#cc2200"/>
+  <!-- Inner border line -->
+  <polygon points="512,256 768,512 512,768 256,512" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="22"/>
+  <!-- WTH text - solid white -->
+  <text x="512" y="600" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="188" fill="#ffffff" text-anchor="middle">WTH</text>
+</svg>
