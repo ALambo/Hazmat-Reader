@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>What's That HAZMAT</title>
 <style>
@@ -39,7 +39,7 @@
   .disc-agree-btn { width:100%; max-width:480px; padding:16px; background:var(--danger); color:#fff; border:none; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:var(--dt-xl); letter-spacing:3px; cursor:pointer; border-radius:2px; transition:all 0.2s; }
   .disc-agree-btn:hover { background:#f04040; }
 
-  header { width:100%; max-width:680px; padding:28px 16px 12px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+  header { width:100%; max-width:680px; padding:calc(28px + env(safe-area-inset-top)) 16px 12px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
   .logo-diamond { width:44px; height:44px; background:var(--accent); transform:rotate(45deg); flex-shrink:0; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(245,168,0,0.3); }
   .logo-diamond span { transform:rotate(-45deg); font-family:'Rajdhani',sans-serif; font-weight:700; font-size:var(--dt-base); color:#000; }
   .header-text h1 { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:var(--dt-xl); letter-spacing:1.5px; color:var(--accent); line-height:1; }

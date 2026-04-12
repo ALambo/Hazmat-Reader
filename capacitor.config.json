@@ -1,5 +1,8 @@
 {
   "appId": "com.whatsthathazmat.app",
   "appName": "What's That HAZMAT",
-  "webDir": "public"
+  "webDir": "public",
+  "ios": {
+    "contentInset": "always"
+  }
 }
