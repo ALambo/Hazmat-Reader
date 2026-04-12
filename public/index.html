@@ -22,7 +22,8 @@
   /* Respect system font size preference */
   html { font-size: 100%; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--bg); color:var(--text); font-family:'IBM Plex Sans',sans-serif; font-size:var(--dt-base); min-height:100vh; display:flex; flex-direction:column; align-items:center; }
+  body { background:var(--bg); color:var(--text); font-family:'IBM Plex Sans',sans-serif; font-size:var(--dt-base); min-height:100vh; display:flex; flex-direction:column; align-items:center; scrollbar-width:none; -ms-overflow-style:none; }
+  body::-webkit-scrollbar { display:none; }
   body::before { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px); pointer-events:none; z-index:100; }
 
   #disclaimerScreen { position:fixed; inset:0; background:var(--bg); z-index:998; display:none; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px; overflow-y:auto; }
