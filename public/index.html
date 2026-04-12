@@ -543,41 +543,55 @@ function analyzePlacard() {
     ];
   }
 
-  fetch('https://hazmatreader.vercel.app/api/analyze', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 8000, messages: [{ role: 'user', content: messageContent }] })
-  })
-  .then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
-  .then(function(r) {
-    clearInterval(msgTimer); analyzeBtn.disabled = false;
-    if (!r.ok) { showError('API Error: ' + (r.data.error && r.data.error.message ? r.data.error.message : JSON.stringify(r.data))); return; }
-    var text = r.data.content.map(function(b) { return b.text || ''; }).join('');
-    var result = null;
-    try { result = JSON.parse(text.trim()); } catch(e1) {
-      try { result = JSON.parse(text.replace(/```json|```/gi,'').trim()); } catch(e2) {
-        try {
-          // Find the outermost { } block
-          var start = text.indexOf('{');
-          var end = text.lastIndexOf('}');
-          if (start >= 0 && end > start) result = JSON.parse(text.substring(start, end+1));
-        } catch(e3) {
+  doAnalyzeFetch(messageContent, 1);
+}
+
+function doAnalyzeFetch(messageContent, attempt) {
+    fetch('https://hazmatreader.vercel.app/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 8000, messages: [{ role: 'user', content: messageContent }] })
+    })
+    .then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
+    .then(function(r) {
+      if (!r.ok) {
+        clearInterval(msgTimer); analyzeBtn.disabled = false;
+        showError('API Error: ' + (r.data.error && r.data.error.message ? r.data.error.message : JSON.stringify(r.data))); return;
+      }
+      var text = r.data.content.map(function(b) { return b.text || ''; }).join('');
+      var result = null;
+      try { result = JSON.parse(text.trim()); } catch(e1) {
+        try { result = JSON.parse(text.replace(/```json|```/gi,'').trim()); } catch(e2) {
           try {
-            // Try to extract just detected + placards
-            var m = text.match(/\{[\s\S]*?\}/);
-            if (m) result = JSON.parse(m[0]);
-          } catch(e4) {
-            showError('Could not parse response. Response was: ' + text.substring(0, 200)); return;
+            var start = text.indexOf('{');
+            var end = text.lastIndexOf('}');
+            if (start >= 0 && end > start) result = JSON.parse(text.substring(start, end+1));
+          } catch(e3) {
+            try {
+              var m = text.match(/\{[\s\S]*?\}/);
+              if (m) result = JSON.parse(m[0]);
+            } catch(e4) {
+              result = null;
+            }
           }
         }
       }
-    }
-    if (!result) { showError('Empty response. Please try again.'); return; }
-    showResult(result);
-  })
-  .catch(function(err) {
-    clearInterval(msgTimer); analyzeBtn.disabled = false;
-    showError(getFriendlyError(err.message));
+      if (!result) {
+        if (attempt < 2) {
+          // Silent auto-retry
+          doAnalyzeFetch(messageContent, attempt + 1);
+        } else {
+          clearInterval(msgTimer); analyzeBtn.disabled = false;
+          showError('Could not parse response. Please try again.');
+        }
+        return;
+      }
+      clearInterval(msgTimer); analyzeBtn.disabled = false;
+      showResult(result);
+    })
+    .catch(function(err) {
+      clearInterval(msgTimer); analyzeBtn.disabled = false;
+      showError(getFriendlyError(err.message));
   });
 }
 
