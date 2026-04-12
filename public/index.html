@@ -1072,13 +1072,27 @@ var RC_API_KEY = "test_CokZbIlWzyoHsJFXrWIbnFsrmBL";
 var RC_ENTITLEMENT = "pro";
 var RC_PRODUCT_ID = "com.whatsthathazmat.pro.yearly";
 
+function getRC() {
+  // @revenuecat/purchases-capacitor exposes via Capacitor plugin registry
+  return window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.PurchasesPlugin;
+}
+
 function initRevenueCat() {
   try {
     if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-      Purchases.configure({ apiKey: RC_API_KEY });
-      checkProStatus();
+      var RC = getRC();
+      if (RC) {
+        RC.configure({ apiKey: RC_API_KEY }).then(function() {
+          checkProStatus();
+        }).catch(function(e) {
+          console.log('RC configure error:', e);
+          checkProStatus();
+        });
+      } else {
+        console.log('RC plugin not found at init');
+        checkProStatus();
+      }
     } else {
-      // Running in browser/dev — skip RevenueCat
       checkProStatus();
     }
   } catch(e) {
@@ -1089,8 +1103,9 @@ function initRevenueCat() {
 
 function checkProStatus() {
   try {
-    if (window.Capacitor && window.Capacitor.isNativePlatform() && window.Purchases) {
-      Purchases.getCustomerInfo().then(function(result) {
+    var RC = getRC();
+    if (window.Capacitor && window.Capacitor.isNativePlatform() && RC) {
+      RC.getCustomerInfo().then(function(result) {
         var info = result.customerInfo || result;
         isProUser = !!(info.entitlements && info.entitlements.active && info.entitlements.active[RC_ENTITLEMENT]);
         updateProUI();
@@ -1139,12 +1154,13 @@ function purchasePro() {
     alert('DEBUG: Not on native platform.');
     return;
   }
-  if (!window.Purchases) {
-    alert('DEBUG: Purchases object not found.');
+  var RC = getRC();
+  if (!RC) {
+    alert('DEBUG: PurchasesPlugin not found in Capacitor.Plugins. Available: ' + Object.keys(window.Capacitor.Plugins || {}).join(', '));
     return;
   }
-  alert('DEBUG: Calling getOfferings...');
-  Purchases.getOfferings().then(function(result) {
+  alert('DEBUG: RC found, calling getOfferings...');
+  RC.getOfferings().then(function(result) {
     alert('DEBUG: getOfferings result: ' + JSON.stringify(result).substring(0, 300));
     var offerings = result.offerings || result;
     var current = offerings.current;
@@ -1154,7 +1170,7 @@ function purchasePro() {
     }
     var pkg = current.availablePackages[0];
     alert('DEBUG: Purchasing package: ' + pkg.identifier);
-    return Purchases.purchasePackage({ aPackage: pkg });
+    return RC.purchasePackage({ aPackage: pkg });
   }).then(function(result) {
     if (!result) return;
     var info = result.customerInfo || result;
@@ -1175,7 +1191,9 @@ function restorePurchases() {
     alert('Restore is only available on device.');
     return;
   }
-  Purchases.restorePurchases().then(function(result) {
+  var RC = getRC();
+  if (!RC) { alert('Restore unavailable. Please try again.'); return; }
+  RC.restorePurchases().then(function(result) {
     var info = result.customerInfo || result;
     isProUser = !!(info.entitlements && info.entitlements.active && info.entitlements.active[RC_ENTITLEMENT]);
     updateProUI();
