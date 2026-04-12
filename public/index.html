@@ -1165,44 +1165,35 @@ function handleSubscribe() {
 
 function purchasePro() {
   if (!window.Capacitor || !window.Capacitor.isNativePlatform()) {
-    alert('DEBUG: Not on native platform.');
+    alert('Purchases are only available on device.');
     return;
   }
   var RC = getRC();
-  if (!RC) {
-    alert('DEBUG: PurchasesPlugin not found in Capacitor.Plugins. Available: ' + Object.keys(window.Capacitor.Plugins || {}).join(', '));
-    return;
-  }
-  alert('DEBUG: RC found, calling getOfferings...');
+  if (!RC) { alert('Purchase unavailable. Please try again.'); return; }
   RC.getOfferings().then(function(result) {
-    alert('DEBUG: getOfferings result: ' + JSON.stringify(result).substring(0, 300));
     var offerings = result.offerings || result;
     var current = offerings.current;
     if (!current || !current.availablePackages || current.availablePackages.length === 0) {
-      alert('DEBUG: No packages found. current=' + JSON.stringify(current).substring(0, 200));
+      alert('No subscription available. Please try again later.');
       return;
     }
     var pkg = current.availablePackages[0];
-    alert('DEBUG: Purchasing package: ' + pkg.identifier);
     return RC.purchasePackage({ aPackage: pkg });
   }).then(function(result) {
-    alert('DEBUG: purchasePackage result: ' + JSON.stringify(result).substring(0, 400));
-    if (!result) { alert('DEBUG: result is null/undefined'); return; }
+    if (!result) return;
     var info = result.customerInfo || result;
     var entitlements = info.entitlements || {};
     var active = entitlements.active || {};
-    alert('DEBUG: entitlements.active keys: ' + Object.keys(active).join(', ') + ' | looking for: ' + RC_ENTITLEMENT);
     isProUser = !!active[RC_ENTITLEMENT];
     if (isProUser) {
       activatePro();
       closeProScreen();
       alert('Welcome to PRO! All features unlocked.');
-    } else {
-      alert('DEBUG: PRO entitlement not found. active=' + JSON.stringify(active).substring(0, 200));
     }
   }).catch(function(e) {
     if (e && e.userCancelled) return;
-    alert('DEBUG: Purchase error: ' + JSON.stringify(e).substring(0, 300));
+    console.log('Purchase error:', e);
+    alert('Purchase could not be completed. Please try again.');
   });
 }
 
