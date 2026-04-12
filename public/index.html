@@ -270,8 +270,12 @@
       <div class="pro-modal-feature"><span>&#128338;</span> Full scan history (25 scans)</div>
     </div>
     <div class="pro-modal-actions">
-      <button class="pro-subscribe-btn" onclick="purchasePro()">LOCK IN $4.99/YEAR &rarr;</button>
-      <button class="pro-dismiss-btn" onclick="restorePurchases()" style="margin-top:8px;">Restore Purchases</button>
+      <button class="pro-subscribe-btn" onclick="handleSubscribe()">LOCK IN $4.99/YEAR &rarr;</button>
+      <div class="pro-code-row">
+        <input class="pro-code-input" id="proCodeInput" type="text" placeholder="HAVE AN UNLOCK CODE?">
+        <button class="pro-code-btn" onclick="redeemCode()">REDEEM</button>
+      </div>
+      <div class="pro-code-msg" id="proCodeMsg"></div>
       <button class="pro-dismiss-btn" onclick="closeProScreen()">Maybe later</button>
     </div>
   </div>
@@ -315,7 +319,7 @@
     </div>
     <div class="about-section">
       <div class="about-section-title">CONTACT</div>
-      <a class="about-contact-btn" href="/cdn-cgi/l/email-protection#e1b68980959295898095a9a0bbaca0b5a1868c80888dcf828e8c"><span>✉</span> <span><span class="__cf_email__" data-cfemail="91c6f9f0e5e2e5f9f0e5d9d0cbdcd0c5d1f6fcf0f8fdbff2fefc">[email&#160;protected]</span></span></a>
+      <a class="about-contact-btn" href="mailto:WhatsthatHAZMAT@gmail.com"><span>✉</span> <span>WhatsthatHAZMAT@gmail.com</span></a>
     </div>
     <div class="about-section">
       <div class="about-section-title">DISCLAIMER</div>
@@ -441,7 +445,7 @@
 
 <div class="warning-strip">&#9888; FOR REFERENCE ONLY &middot; IN AN EMERGENCY CALL 911 &middot; DO NOT RELY SOLELY ON THIS APP</div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 
 // Show disclaimer on first load each session
 document.getElementById('disclaimerScreen').style.display = 'flex';
@@ -1064,109 +1068,63 @@ function clearHistory() {
   }
 }
 
-// ── PRO SYSTEM (RevenueCat StoreKit) ──
+// ── PRO SYSTEM ──
+var PRO_CODE = "HAZPRO2026";
 var isProUser = false;
-var rcInitialized = false;
 
-var RC_API_KEY = "test_CokZbIlWzyoHsJFXrWIbnFsrmBL";
-var RC_ENTITLEMENT = "pro";
-var RC_PRODUCT_ID = "com.whatsthathazmat.pro.yearly";
-
-function initRevenueCat() {
-  if (typeof Purchases === 'undefined') {
-    console.log('RevenueCat not available (web preview mode)');
-    loadProFromStorage();
-    return;
-  }
-  Purchases.configure({ apiKey: RC_API_KEY }).then(function() {
-    rcInitialized = true;
-    checkProStatus();
-  }).catch(function(err) {
-    console.log('RC init error:', err);
-    loadProFromStorage();
-  });
-}
-
-function loadProFromStorage() {
+function checkProStatus() {
   try {
     isProUser = localStorage.getItem('wth_pro_active') === 'true';
   } catch(e) { isProUser = false; }
-  updateProBadge();
+  updateProUI();
 }
 
-function checkProStatus() {
-  Purchases.getCustomerInfo().then(function(result) {
-    var info = result.customerInfo;
-    isProUser = info.entitlements.active[RC_ENTITLEMENT] !== undefined;
-    try { localStorage.setItem('wth_pro_active', isProUser ? 'true' : 'false'); } catch(e) {}
-    updateProBadge();
-  }).catch(function(err) {
-    console.log('RC status check error:', err);
-    loadProFromStorage();
-  });
-}
-
-function updateProBadge() {
+function updateProUI() {
   var badge = document.getElementById('proHeaderBadge');
-  if (!badge) return;
-  if (isProUser) {
-    badge.textContent = 'PRO';
-    badge.style.background = 'linear-gradient(135deg,#f7971e,#ffd200)';
-    badge.style.color = '#1a1a2e';
-  } else {
-    badge.textContent = 'PRO';
-    badge.style.background = 'rgba(255,255,255,0.15)';
-    badge.style.color = '#ccc';
-  }
-}
-
-function purchasePro() {
-  if (!rcInitialized || typeof Purchases === 'undefined') {
-    alert('Purchase not available in preview mode.');
-    return;
-  }
-  Purchases.getOfferings().then(function(result) {
-    var pkg = null;
-    if (result.current && result.current.availablePackages.length > 0) {
-      pkg = result.current.availablePackages[0];
-    }
-    if (!pkg) { alert('No subscription available. Please try again.'); return; }
-    return Purchases.purchasePackage({ aPackage: pkg });
-  }).then(function(result) {
-    if (!result) return;
-    var info = result.customerInfo;
-    isProUser = info.entitlements.active[RC_ENTITLEMENT] !== undefined;
+  if (badge) {
     if (isProUser) {
-      try { localStorage.setItem('wth_pro_active', 'true'); } catch(e) {}
-      updateProBadge();
-      closeProModal();
-      alert('Welcome to PRO! All features are now unlocked.');
-    }
-  }).catch(function(err) {
-    if (err.userCancelled) return;
-    alert('Purchase failed: ' + (err.message || 'Unknown error'));
-  });
-}
-
-function restorePurchases() {
-  if (!rcInitialized || typeof Purchases === 'undefined') {
-    alert('Restore not available in preview mode.');
-    return;
-  }
-  Purchases.restorePurchases().then(function(result) {
-    var info = result.customerInfo;
-    isProUser = info.entitlements.active[RC_ENTITLEMENT] !== undefined;
-    try { localStorage.setItem('wth_pro_active', isProUser ? 'true' : 'false'); } catch(e) {}
-    updateProBadge();
-    if (isProUser) {
-      closeProModal();
-      alert('PRO access restored!');
+      badge.textContent = 'PRO';
+      badge.className = 'pro-badge pro-active-badge';
     } else {
-      alert('No active subscription found.');
+      badge.textContent = 'PRO';
+      badge.className = 'pro-badge';
     }
-  }).catch(function(err) {
-    alert('Restore failed: ' + (err.message || 'Unknown error'));
-  });
+  }
+}
+
+function activatePro() {
+  try { localStorage.setItem('wth_pro_active', 'true'); } catch(e) {}
+  isProUser = true;
+  updateProUI();
+}
+
+function openProScreen() {
+  document.getElementById('proScreen').classList.add('open');
+  document.getElementById('proCodeInput').value = '';
+  document.getElementById('proCodeMsg').textContent = '';
+  document.getElementById('proCodeMsg').style.color = '';
+}
+
+function closeProScreen() {
+  document.getElementById('proScreen').classList.remove('open');
+}
+
+function handleSubscribe() {
+  alert('In-app subscription coming soon! Use unlock code HAZPRO2026 to activate Pro now.');
+}
+
+function redeemCode() {
+  var code = document.getElementById('proCodeInput').value.trim().toUpperCase();
+  var msg = document.getElementById('proCodeMsg');
+  if (code === PRO_CODE) {
+    activatePro();
+    msg.textContent = '&#10003; Pro unlocked! Enjoy all features.';
+    msg.style.color = '#2ecc71';
+    setTimeout(function() { closeProScreen(); }, 1500);
+  } else {
+    msg.textContent = 'Invalid code. Please try again.';
+    msg.style.color = 'var(--danger)';
+  }
 }
 
 function requirePro(callback) {
@@ -1174,29 +1132,13 @@ function requirePro(callback) {
   openProScreen();
 }
 
-function openProScreen() {
-  if (!isProUser) { openProModal(); return; }
+function openHistoryGated() {
+  if (!isProUser) { openProScreen(); return; }
+  renderHistory();
+  document.getElementById('historyScreen').classList.add('open');
 }
 
-function openProModal() {
-  var s = document.getElementById('proScreen');
-  if (s) s.style.display = 'flex';
-}
-
-function closeProModal() {
-  var s = document.getElementById('proScreen');
-  if (s) s.style.display = 'none';
-}
-
-function closeProScreen() {
-  closeProModal();
-}
-
-// ── APP STARTUP ──
-document.addEventListener('DOMContentLoaded', function() {
-  initRevenueCat();
-  buildSamplesDropdown();
-});
+// Nearby handled by loadNearby()
 
 // ── PRO FEATURE: REPORT INCIDENT ──
 function reportIncident(hazardType, unNumber) {
@@ -1245,4 +1187,10 @@ function switchReadyTab(tabName, btn) {
   var wrap = document.getElementById('readyTabsWrap');
   if (!wrap) return;
   wrap.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
-  document.querySelectorAll('[id^="readyTab-"]').forEach(function(p){
+  document.querySelectorAll('[id^="readyTab-"]').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  var panel = document.getElementById('readyTab-' + tabName);
+  if (panel) panel.classList.add('active');
+  // Gate pro tabs
+  if (['history','nearby','erg','comply'].indexOf(tabName)
+    
