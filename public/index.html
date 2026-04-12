@@ -1136,17 +1136,24 @@ function handleSubscribe() {
 
 function purchasePro() {
   if (!window.Capacitor || !window.Capacitor.isNativePlatform()) {
-    alert('Purchases are only available on device.');
+    alert('DEBUG: Not on native platform.');
     return;
   }
+  if (!window.Purchases) {
+    alert('DEBUG: Purchases object not found.');
+    return;
+  }
+  alert('DEBUG: Calling getOfferings...');
   Purchases.getOfferings().then(function(result) {
+    alert('DEBUG: getOfferings result: ' + JSON.stringify(result).substring(0, 300));
     var offerings = result.offerings || result;
     var current = offerings.current;
     if (!current || !current.availablePackages || current.availablePackages.length === 0) {
-      alert('No subscription available. Please try again later.');
+      alert('DEBUG: No packages found. current=' + JSON.stringify(current).substring(0, 200));
       return;
     }
     var pkg = current.availablePackages[0];
+    alert('DEBUG: Purchasing package: ' + pkg.identifier);
     return Purchases.purchasePackage({ aPackage: pkg });
   }).then(function(result) {
     if (!result) return;
@@ -1159,8 +1166,7 @@ function purchasePro() {
     }
   }).catch(function(e) {
     if (e && e.userCancelled) return;
-    console.log('Purchase error:', e);
-    alert('Purchase could not be completed. Please try again.');
+    alert('DEBUG: Purchase error: ' + JSON.stringify(e).substring(0, 300));
   });
 }
 
