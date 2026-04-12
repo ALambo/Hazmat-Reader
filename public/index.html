@@ -1172,13 +1172,19 @@ function purchasePro() {
     alert('DEBUG: Purchasing package: ' + pkg.identifier);
     return RC.purchasePackage({ aPackage: pkg });
   }).then(function(result) {
-    if (!result) return;
+    alert('DEBUG: purchasePackage result: ' + JSON.stringify(result).substring(0, 400));
+    if (!result) { alert('DEBUG: result is null/undefined'); return; }
     var info = result.customerInfo || result;
-    isProUser = !!(info.entitlements && info.entitlements.active && info.entitlements.active[RC_ENTITLEMENT]);
+    var entitlements = info.entitlements || {};
+    var active = entitlements.active || {};
+    alert('DEBUG: entitlements.active keys: ' + Object.keys(active).join(', ') + ' | looking for: ' + RC_ENTITLEMENT);
+    isProUser = !!active[RC_ENTITLEMENT];
     if (isProUser) {
       activatePro();
       closeProScreen();
       alert('Welcome to PRO! All features unlocked.');
+    } else {
+      alert('DEBUG: PRO entitlement not found. active=' + JSON.stringify(active).substring(0, 200));
     }
   }).catch(function(e) {
     if (e && e.userCancelled) return;
