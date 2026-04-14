@@ -617,7 +617,7 @@ function dangerColor(l) {
 }
 
 function proLock(feat, items) {
-  return '<div class="pro-lock"><div class="pro-lock-diamond"><span>&#11088;</span></div><div class="pro-lock-title">PREMIUM FEATURE</div><div class="pro-lock-text">Upgrade to Pro to access ' + feat + ' and more.</div><div class="pro-features-list">' + items.map(function(i){ return '<div class="pro-feature-item">&#11088; ' + i + '</div>'; }).join('') + '</div><button class="pro-lock-btn" onclick="alert(\'Pro version coming soon!\')">UPGRADE TO PRO</button></div>';
+  return '<div class="pro-lock"><div class="pro-lock-diamond"><span>&#11088;</span></div><div class="pro-lock-title">PREMIUM FEATURE</div><div class="pro-lock-text">Upgrade to Pro to access ' + feat + ' and more.</div><div class="pro-features-list">' + items.map(function(i){ return '<div class="pro-feature-item">&#11088; ' + i + '</div>'; }).join('') + '</div><button class="pro-lock-btn" onclick="openProScreen()">UPGRADE TO PRO</button></div>';
 }
 
 function switchTab(cardId, tabName, btn) {
