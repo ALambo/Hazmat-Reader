@@ -316,7 +316,7 @@
     </div>
     <div class="about-section">
       <div class="about-section-title">CONTACT</div>
-      <a class="about-contact-btn" href="/cdn-cgi/l/email-protection#56213e372225223e37223e372c3b372216313b373f3a7835393b"><span>&#9993;</span> <span class="__cf_email__" data-cfemail="35425d544146415d54415d544f585441755258545c591b565a58">[email&#160;protected]</span></a>
+      <a class="about-contact-btn" href="mailto:WhatsthatHAZMAT@gmail.com"><span>&#9993;</span> <span>WhatsthatHAZMAT@gmail.com</span></a>
     </div>
     <div class="about-section">
       <div class="about-section-title">DISCLAIMER</div>
@@ -636,14 +636,7 @@ function buildCard(p, index, total) {
     if (isProUser) {
       newsHtml = p.news.map(function(n){ return '<div class="news-item"><div class="news-date">'+n.date+'</div><div class="news-title">'+n.title+'</div><div class="news-summary">'+n.summary+'</div></div>'; }).join('');
     } else {
-      newsHtml = p.news.map(function(n){
-        return '<div class="news-item news-blur-wrap">'
-          + '<div class="news-date">'+n.date+'</div>'
-          + '<div class="news-title">'+n.title+'</div>'
-          + '<div class="news-blur-content"><div class="news-summary">'+n.summary+'</div></div>'
-          + '<div class="news-blur-overlay"><span class="news-blur-badge" onclick="openProScreen()">&#11088; PRO &mdash; UPGRADE TO READ</span></div>'
-          + '</div>';
-      }).join('');
+      newsHtml = proLock('Latest News & Incidents', ['Recent spills & accidents', 'Regulatory updates from DOT, OSHA & EPA', 'Agency alerts & enforcement actions']);
     }
   } else {
     newsHtml = '<div style="color:var(--muted);font-size:13px;padding:12px 0;">No recent news found.</div>';
