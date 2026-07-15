@@ -273,7 +273,13 @@
     <div class="pro-modal-actions">
       <button class="pro-subscribe-btn" onclick="handleSubscribe()">LOCK IN $4.99/YEAR &rarr;</button>
       <button class="pro-dismiss-btn" onclick="restorePurchases()" style="margin-top:8px;opacity:0.7;">Restore Purchases</button>
-      <button class="pro-dismiss-btn" onclick="closeProScreen()">Maybe later</button>
+      <button class="pro-dismiss-btn" onclick="closeProScreen()" style="margin-top:10px;border:1px solid var(--muted);border-radius:4px;padding:10px 0;font-size:var(--dt-sm);letter-spacing:1px;opacity:1;">NO THANKS</button>
+    </div>
+    <div style="text-align:center;padding:12px 10px 4px;font-size:var(--dt-xs);color:var(--muted);line-height:1.6;">
+      <div style="margin-bottom:6px;">Auto-renewing subscription. $4.99 for the first year, then $9.99/year. Cancel anytime in Settings.</div>
+      <a href="#" onclick="openLegal('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/');return false;" style="color:var(--accent);text-decoration:underline;">Terms of Use (EULA)</a>
+      <span style="margin:0 6px;">&middot;</span>
+      <a href="#" onclick="openLegal('https://www.whatsthathazmat.com/privacy.html');return false;" style="color:var(--accent);text-decoration:underline;">Privacy Policy</a>
     </div>
   </div>
 </div>
@@ -452,6 +458,7 @@ document.getElementById('disclaimerScreen').style.display = 'flex';
 
 document.getElementById('disclaimerAgreeBtn').addEventListener('click', function() {
   document.getElementById('disclaimerScreen').style.display = 'none';
+  maybeShowProOnLaunch();
 });
 
 var imageBase64 = null;
@@ -1147,6 +1154,22 @@ function activatePro() {
 
 function openProScreen() {
   document.getElementById('proScreen').classList.add('open');
+}
+
+function openLegal(url) {
+  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
+    window.Capacitor.Plugins.Browser.open({ url: url });
+  } else {
+    window.open(url, '_system');
+  }
+}
+
+var proScreenShownThisSession = false;
+function maybeShowProOnLaunch() {
+  if (proScreenShownThisSession) return;
+  if (typeof isProUser !== 'undefined' && isProUser) return;
+  proScreenShownThisSession = true;
+  setTimeout(function() { openProScreen(); }, 1200);
 }
 
 function closeProScreen() {
